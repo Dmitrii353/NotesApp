@@ -8,9 +8,15 @@
 import UIKit
 
 class TasksView: UIViewController {
-   
+        
     var tasks : [Tasks] = []
     private let coreManager = CoreManager.shared
+    private let categoryPickerView: CategoryPickerViewControllerProtocol
+    
+    init(categoryPickerView: CategoryPickerViewControllerProtocol = CategoryPickerViewController()) {
+        self.categoryPickerView = categoryPickerView
+        super.init(nibName: nil, bundle: nil)
+    }
     
     
     lazy var taskCollectionView: UICollectionView = {
@@ -50,11 +56,46 @@ class TasksView: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "plus.app"), style: .done, target: self, action: #selector(addNote))
     }
     
-    @objc
-    func addNote() {
-        let addNote = AddTaskView()
-        navigationController?.pushViewController(addNote, animated: true)
+    @objc func addNote() {
+        let picker = categoryPickerView as! CategoryPickerViewController
+        
+        picker.onCategoriesSelected = { [weak self] category in
+            // Ждём небольшую задержку, чтобы picker полностью закрылся
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self?.showTaskCreationConfirmation(category: category)
+            }
+        }
+        
+        present(picker, animated: true)
     }
+    
+    private func showTaskCreationConfirmation(category: String) {
+        let messageText: String = "Создать задачу?"
+        
+        let alert = UIAlertController(title: messageText, message: nil, preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "Отмена", style: .destructive))
+        alert.addAction(UIAlertAction(title: "Создать", style: .default, handler: { [weak self] _ in
+            self?.createNewTask(category)
+        }))
+        present(alert,animated: true)
+    }
+    
+    private func createNewTask(_ category: String) {
+        coreManager.createTask(name: category)
+        coreManager.saveContext()
+        coreManager.getFolder()
+        self.tasks = coreManager.tasks
+        let success = UIAlertController(title: "Готово", message: "Задача \(category) создана", preferredStyle: .alert)
+        present(success, animated: true)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            success.dismiss(animated: true)
+            self.taskCollectionView.reloadData()
+        }
+        
+    }
+    
     
     private func setupConstraints(){
         NSLayoutConstraint.activate([
@@ -65,6 +106,10 @@ class TasksView: UIViewController {
 
             
         ])
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
    
@@ -106,11 +151,7 @@ extension TasksView: UICollectionViewDelegate, UICollectionViewDataSource {
         taskCollectionView.reloadData()
         // Удаление элемента
     
-        
-        
-        
     }
-    
     
 }
 
