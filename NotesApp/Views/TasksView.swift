@@ -58,7 +58,15 @@ class TasksView: UIViewController {
     
     @objc func addNote() {
         let picker = categoryPickerView as! CategoryPickerViewController
-        
+        if let sheet = picker.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+            sheet.preferredCornerRadius = 25
+//            sheet.selectedDetentIdentifier = .medium
+//            sheet.prefersPageSizing = false
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+         
+        }
         picker.onCategoriesSelected = { [weak self] category in
             // Ждём небольшую задержку, чтобы picker полностью закрылся
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -86,7 +94,7 @@ class TasksView: UIViewController {
         coreManager.saveContext()
         coreManager.getFolder()
         self.tasks = coreManager.tasks
-        let success = UIAlertController(title: "Готово", message: "Задача \(category) создана", preferredStyle: .alert)
+        let success = UIAlertController(title: nil, message: "Задача \(category) создана", preferredStyle: .alert)
         present(success, animated: true)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
