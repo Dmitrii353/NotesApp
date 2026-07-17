@@ -30,6 +30,8 @@ final class CategoryPickerViewController: UIViewController, CategoryPickerViewCo
         $0.font = .systemFont(ofSize: 20, weight: .semibold)
         $0.textColor = .black
         $0.textAlignment = .center
+        $0.heightAnchor.constraint(equalToConstant: 50).isActive = true
+       
         return $0
     }(UILabel())
     
@@ -48,13 +50,7 @@ final class CategoryPickerViewController: UIViewController, CategoryPickerViewCo
         view.addSubViews(pickerView,titleLabel,doneButton)
         setupConstraints()
         
-        if let sheet = sheetPresentationController {
-            sheet.detents = [.medium()]
-            sheet.prefersGrabberVisible = true
-            sheet.preferredCornerRadius = 25
-            sheet.largestUndimmedDetentIdentifier = .medium
-         
-        }
+     
     }
     
     private func setupConstraints() {
