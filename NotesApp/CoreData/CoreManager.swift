@@ -38,7 +38,7 @@ class CoreManager {
    
     
     // createTask
-    func createTask( name: String, description: String) {
+    func createTask( name: String) {
         let task = Tasks(context: persistentContainer.viewContext)
         task.date = Date()
         task.id = UUID().uuidString
