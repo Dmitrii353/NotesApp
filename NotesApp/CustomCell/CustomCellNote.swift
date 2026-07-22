@@ -46,7 +46,14 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
         return $0
     }(UIImageView())
 
-    
+    lazy var deleteNote: UIButton = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.setImage(UIImage(systemName: "xmark.app"), for: .normal)
+        $0.tintColor = .darkGray
+        $0.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        $0.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        return $0
+    }(UIButton())
     
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -58,7 +65,7 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
    func setupElements(){
     
         contentView.addSubview(addView)
-        addView.addSubViews(nameNote,imageNote,detailsNote,checkBox)
+        addView.addSubViews(nameNote,imageNote,detailsNote,checkBox,deleteNote)
        contentView.backgroundColor = .colorCollection
     }
     
@@ -88,6 +95,9 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
             
             detailsNote.bottomAnchor.constraint(equalTo: addView.bottomAnchor, constant: -40),
             addView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -25),
+            
+            deleteNote.topAnchor.constraint(equalTo: checkBox.topAnchor),
+            deleteNote.leadingAnchor.constraint(equalTo: addView.leadingAnchor, constant: 25),
         ])
     }
     

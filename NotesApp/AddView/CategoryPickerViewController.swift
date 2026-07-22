@@ -11,7 +11,7 @@ protocol CategoryPickerViewControllerProtocol: AnyObject {
     var onCategoriesSelected: ((String) -> Void)? { get set }
 }
 
-final class CategoryPickerViewController: UIViewController, CategoryPickerViewControllerProtocol,UIPickerViewDelegate, UIPickerViewDataSource {
+ final class CategoryPickerViewController: UIViewController, CategoryPickerViewControllerProtocol,UIPickerViewDelegate, UIPickerViewDataSource {
     
     var onCategoriesSelected: ((String) -> Void)?
     
