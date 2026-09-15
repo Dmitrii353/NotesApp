@@ -15,7 +15,7 @@ protocol CategoryPickerViewControllerProtocol: AnyObject {
     
     var onCategoriesSelected: ((String) -> Void)?
     
-    private let categories: [String] = ["Работа","Учёба","Продукты","Личное","Здоровье","Покупки","Хобби","Цели","Дом","Другое"]
+     private let categories = CategoryTask.allCategories
     
     lazy var pickerView: UIPickerView = {
         $0.translatesAutoresizingMaskIntoConstraints = false

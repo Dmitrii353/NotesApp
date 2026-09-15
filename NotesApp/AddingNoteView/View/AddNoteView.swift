@@ -30,7 +30,9 @@ class AddNoteView: UIViewController {
         $0.layer.shadowRadius = 7
         return $0
     }(UITextField())
+    
     lazy var descriptionLabel: UILabel = AddLabel(fontText: 18, fontW: .bold, colorText: .black)
+    
     lazy var detailNote: UITextView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
@@ -45,6 +47,7 @@ class AddNoteView: UIViewController {
         $0.layer.shadowRadius = 7
         return $0
     }(UITextView())
+    
     lazy var imageNote: UIImageView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.layer.cornerRadius = 80
@@ -60,6 +63,7 @@ class AddNoteView: UIViewController {
         $0.isUserInteractionEnabled = true
         return $0
     }(UIImageView())
+  
     lazy var saveNote: UIButton = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.backgroundColor = .black
