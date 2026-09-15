@@ -44,6 +44,17 @@ extension Tasks {
 
 }
 
-extension Tasks : Identifiable {
-
+extension Tasks {
+    var progress: Float {
+        guard let notesCount = self.notes?.allObjects as? [Note], !notesCount.isEmpty else { return 0 }
+        let completedCount = notesCount.filter {$0.execution}.count
+        return Float(completedCount) / Float(notesCount.count)
+    }
+    
+    var progressText: String {
+        guard let notesCount = self.notes?.allObjects as? [Note], !notesCount.isEmpty else { return "0 заметок · 0%" }
+        let completedCount = notesCount.filter {$0.execution}.count
+        let percent = (Int(Float(completedCount) / Float(notesCount.count) * 100))
+        return "\(notesCount.count) заметок · \(percent)%"
+    }
 }

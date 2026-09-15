@@ -28,9 +28,9 @@ final class TasksView: UIViewController, TaskViewProtocol {
     lazy var taskCollectionView: UICollectionView = {
         let layout = $0.collectionViewLayout as! UICollectionViewFlowLayout
         layout.scrollDirection = .vertical
-        layout.itemSize = CGSize(width: view.frame.width/2, height: 100)
-        layout.minimumInteritemSpacing = 0
-        layout.minimumLineSpacing = 20
+        layout.minimumInteritemSpacing = 12
+        layout.minimumLineSpacing = 12
+        layout.sectionInset = UIEdgeInsets(top: 12, left: 20, bottom: 12, right: 20)
         
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.layer.cornerRadius = 25
@@ -54,9 +54,11 @@ final class TasksView: UIViewController, TaskViewProtocol {
     private func setupElements() {
         view.backgroundColor = .colorBackgroundView
         view.addSubViews(taskCollectionView)
-        title = "Задачи"
+        title = "Мои заметки"
         navigationController?.navigationBar.prefersLargeTitles = true
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "plus.app"), style: .done, target: self, action: #selector(addNote))
+        let addTaskButton = UIBarButtonItem(image: UIImage(systemName: "plus.app"), style: .done, target: self, action: #selector(addNote))
+        addTaskButton.tintColor = .colorButtonAddTask
+        navigationItem.rightBarButtonItem = addTaskButton
     }
     
     @objc func addNote() {
@@ -112,7 +114,7 @@ final class TasksView: UIViewController, TaskViewProtocol {
     
     private func setupConstraints(){
         NSLayoutConstraint.activate([
-            taskCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            taskCollectionView.topAnchor.constraint(equalTo: view.topAnchor),
             taskCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             taskCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             taskCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
@@ -134,13 +136,7 @@ extension TasksView: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = taskCollectionView.dequeueReusableCell(withReuseIdentifier: CustomCellTasks.reuseId, for: indexPath) as! CustomCellTasks
         let task = mainTaskPresenter.tasks[indexPath.item]
-        cell.nameTask.text = task.name
-        cell.countNote.text =  "\(task.notes?.count.description ?? "0") заметок"
-        if let date = task.date {
-            cell.datetask.text = date.formatDateForCell()
-        } else {
-            cell.datetask.text = "нет даты"
-        }
+        cell.setupCell(tasks: task)
         cell.deleteTask.tag = indexPath.item
         cell.deleteTask.addTarget(self, action: #selector(deleteTask), for: .touchUpInside)
         return cell
@@ -163,3 +159,20 @@ extension TasksView: UICollectionViewDelegate, UICollectionViewDataSource {
     }
 }
 
+extension TasksView: UICollectionViewDelegateFlowLayout {
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> CGSize {
+        
+        let leftRightInset: CGFloat = 20
+        let spacing: CGFloat = 12
+        let columns: CGFloat = 2
+        
+        // Ширина = (ширина экрана - левый отступ - правый отступ - расстояние между карточками) / 2
+        let width = (collectionView.bounds.width - leftRightInset * 2 - spacing) / columns
+        let height: CGFloat = 166
+        
+        return CGSize(width: width, height: height)
+    }
+}
