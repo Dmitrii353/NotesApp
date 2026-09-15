@@ -7,11 +7,16 @@
 
 import UIKit
 
-class NoteView: UIViewController {
+protocol NoteViewProtocol: AnyObject {
+    func reloadData()
+    func deleteNote(at id: String)
+    func showError(message: String)
+}
 
-    private let coreManager = CoreManager.shared
-    var tasks: Tasks?
-   
+class NoteView: UIViewController, NoteViewProtocol {
+    
+    var presenter: ListNotePresenterProtocol!
+    private let imageService: ImageServiceProtocol = ImageService()
     lazy var noteTableView: UITableView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.backgroundColor = .colorCollection
@@ -21,33 +26,51 @@ class NoteView: UIViewController {
         $0.register(CustomCellNote.self, forCellReuseIdentifier: CustomCellNote.reuseId )
         return $0
     }(UITableView(frame: .zero, style: .plain))
-        
+    
     
     override func viewWillAppear(_ animated: Bool) {
-        coreManager.getFolder()
-        self.noteTableView.reloadData()
+        presenter.updateNotes()
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(noteTableView)
         view.backgroundColor = .colorCollection
-        title = "Заметки"
+        title = presenter.tasks?.name
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.rightBarButtonItem = UIBarButtonItem( image: UIImage(systemName: "plus.app"), style: .done, target: self, action: #selector(addNote))
         setupConstraints()
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!)
     }
     
+    func reloadData() {
+        noteTableView.reloadData()
+    }
+    
+    func deleteNote(at id: String) {
+        let index = presenter.tasks?.notes?.allObjects as! [Note]
+        guard let noteId = index.firstIndex(where: {$0.id == id}) else {
+            reloadData()
+            return
+        }
+        let indexPath = IndexPath(row: noteId, section: 0)
+        noteTableView.performBatchUpdates {
+            noteTableView.deleteRows(at: [indexPath], with: .fade)
+        }
+    }
     
     @objc
     func addNote(){
         let Addnote = AddNoteView()
-        Addnote.tasks = tasks
+        Addnote.tasks = presenter.tasks
         navigationController?.pushViewController(Addnote, animated: true)
     }
-     
-  
+    
+    func showError(message: String) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "Окей", style: .cancel))
+        present(alert,animated: true)
+    }
     
     
     private func setupConstraints(){
@@ -56,72 +79,58 @@ class NoteView: UIViewController {
             noteTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             noteTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             noteTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
-
+            
             
         ])
     }
-   
-
+    
+    
 }
 
 extension NoteView: UITableViewDelegate,UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        tasks?.notes?.count ?? 0
+        presenter.tasks?.notes?.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = noteTableView.dequeueReusableCell(withIdentifier: CustomCellNote.reuseId, for: indexPath) as! CustomCellNote
-        if let notes = tasks?.notes?.allObjects as? [Note] {
+        if let notes = presenter.tasks?.notes?.allObjects as? [Note] {
             let note = notes[indexPath.row]
-            if let imageName = note.photo, let data = coreManager.readFile(imageName: imageName), let image = UIImage(data: data) {
-                cell.imageNote.image = image.circularImage()
+            if let image = note.photo {
+                cell.imageNote.image = imageService.loadImage(name: image)
             } else {
-                cell.imageNote.image = UIImage(systemName: "plus.circle")
+                 cell.imageNote.image = UIImage(systemName: "photo")
             }
             cell.nameNote.text = note.name
             cell.detailsNote.text = note.details
             cell.configure(note: note)
+            cell.deleteNote.tag = indexPath.row
+            cell.deleteNote.addTarget(self, action: #selector(deleteNoteTapped), for: .touchUpInside)
         }
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let oneNote = OneNoteView()
-        if let notes = tasks?.notes?.allObjects as? [Note] {
+        if let notes = presenter.tasks?.notes?.allObjects as? [Note] {
             let note = notes[indexPath.row]
             oneNote.selectedNoteIndex = indexPath.row
             oneNote.titleNote.text = note.name
             oneNote.detailsNote.text = note.details
             
-            oneNote.tasks = tasks
+            oneNote.tasks = presenter.tasks
         }
         navigationController?.pushViewController(oneNote, animated: true)
     }
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            if let notes = tasks?.notes?.allObjects as? [Note] {
-                let note = notes[indexPath.row]
-                coreManager.deleteNote(note: note)
-                coreManager.saveContext()
-                tableView.deleteRows(at: [indexPath], with: .automatic)
-                
-            }
+    
+    @objc private func deleteNoteTapped(_ sender: UIButton) {
+        let index = sender.tag
+        let notes = presenter.tasks?.notes?.allObjects as? [Note]
+        guard index < notes?.count ?? 0 else { return }
+        let oneNote = notes?[index]
+        if let noteId = oneNote?.id {
+            presenter.deleteNote(with: noteId)
         }
     }
 }
-extension UIImage {
-    func circularImage() -> UIImage? {
-        let diameter = min(size.width, size.height)
-        let rect = CGRect(x: (size.width - diameter) / 2, y: (size.height - diameter) / 2, width: diameter, height: diameter)
-        
-        UIGraphicsBeginImageContextWithOptions(CGSize(width: diameter, height: diameter), false, 0.0)
-        let path = UIBezierPath(ovalIn: CGRect(x: 0, y: 0, width: diameter, height: diameter))
-        path.addClip()
-        draw(in: CGRect(x: -rect.origin.x, y: -rect.origin.y, width: size.width, height: size.height))
-        
-        let circularImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        return circularImage
-    }
-}
+
