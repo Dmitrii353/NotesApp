@@ -14,7 +14,8 @@ class Builder {
         let view = TasksView(categoryPickerView: pickerView)
         let presenter = MainTaskPresenter(view: view)
         view.mainTaskPresenter = presenter
-        return view
+        let navigation = UINavigationController(rootViewController: view)
+        return navigation
     }
     
     static func createNoteView(tasks: Tasks?) -> UIViewController {
@@ -22,6 +23,22 @@ class Builder {
         let presenter = ListNotePresenter(view: view, tasks: tasks)
         view.presenter = presenter
         return view
+    }
+    
+    static func createSettingsView() -> UIViewController {
+        let view = SettingsView()
+        let presenter = SettingsPresenter(view: view)
+        view.presenter = presenter
+        let navigation = UINavigationController(rootViewController: view)
+        return navigation
+    }
+    
+    static func createAllNotesView() -> UIViewController {
+        let view = AllNotesView()
+        let presenter = AllNotesPresenter(view: view)
+        view.presenter = presenter
+        let navigation = UINavigationController(rootViewController: view)
+        return navigation
     }
     
 }

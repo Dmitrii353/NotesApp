@@ -14,18 +14,18 @@ class CustomCellTasks: UICollectionViewCell, SetupNewCell {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.layer.cornerRadius = 50
         $0.backgroundColor = .white
-        $0.layer.borderWidth = 1
+        $0.layer.borderWidth = 0.5
         $0.layer.borderColor = UIColor.systemGray2.cgColor
         return $0
     }(UIView())
     
-    lazy var countNote: UILabel = AddLabel(fontText: 12, fontW: .medium, colorText: .brownText)
+    lazy var countNote: UILabel = AddLabel(fontText: 12, fontW: .medium, colorText: .colorDescriptionLabel)
     lazy var nameTask: UILabel = AddLabel(fontText: 18, fontW: .bold, colorText: .black, textAlignmentLabel: .left)
-    lazy var datetask: UILabel = AddLabel(fontText: 12, fontW: .medium, colorText: .brownText)
+    lazy var datetask: UILabel = AddLabel(fontText: 12, fontW: .medium, colorText: .colorDescriptionLabel)
     lazy var deleteTask: UIButton = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.setImage(UIImage(systemName: "xmark.app"), for: .normal)
-        $0.tintColor = .darkGray
+        $0.tintColor = .colorDescriptionLabel
         return $0
     }(UIButton())
    
@@ -34,7 +34,7 @@ class CustomCellTasks: UICollectionViewCell, SetupNewCell {
         $0.heightAnchor.constraint(equalToConstant: 15).isActive = true
         $0.widthAnchor.constraint(equalToConstant: 15).isActive = true
         $0.image = UIImage(systemName: "calendar")
-        $0.tintColor = UIColor.brownText
+        $0.tintColor = UIColor.colorDescriptionLabel
         return $0
     }(UIImageView())
     
@@ -73,7 +73,6 @@ class CustomCellTasks: UICollectionViewCell, SetupNewCell {
         $0.progressViewStyle = .default
         $0.layer.cornerRadius = 2
         $0.trackTintColor = .systemGray5
-        $0.progress = 0.6
         return $0
     }(UIProgressView())
     
@@ -102,8 +101,8 @@ class CustomCellTasks: UICollectionViewCell, SetupNewCell {
         
         categoryTaskImage.image = UIImage(systemName: CategoryTask.icon(for: tasks.name ?? ""))
         iconContainerCategoryImage.backgroundColor = CategoryTask.color(for: tasks.name ?? "")
-        categoryTaskImage.tintColor = .white
-        progressTaskView.progressTintColor = CategoryTask.color(for: tasks.name ?? "")
+        categoryTaskImage.tintColor = CategoryTask.colorIcon(for: tasks.name ?? "")
+        progressTaskView.progressTintColor = CategoryTask.colorIcon(for: tasks.name ?? "")
     }
     
     func setupConstraints() {

@@ -12,7 +12,6 @@ class OneNoteView: UIViewController {
     var tasks: Tasks?
     private var coreManager = CoreManager.shared
     var selectedNoteIndex: Int?
-    private var colorCell: [UIColor] = [.lightBlue,.lighthacky,.lightPurple]
     lazy var titleNote: UITextField = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.placeholder = "Название"
@@ -47,7 +46,7 @@ class OneNoteView: UIViewController {
     }(UITextView())
    private lazy var updateButton: UIButton = {
         $0.translatesAutoresizingMaskIntoConstraints = false
-        $0.backgroundColor = .customRed
+       $0.backgroundColor = .red
         $0.setTitle("Обновить заметку", for: .normal)
         $0.tintColor = .white
         $0.layer.cornerRadius = 15
@@ -69,7 +68,7 @@ class OneNoteView: UIViewController {
     }
     
     private func setupElements() {
-        view.backgroundColor = colorCell.randomElement()
+        view.backgroundColor = .white
         view.addSubViews(titleNote,detailsNote,updateButton)
         title = titleNote.text
         navigationController?.navigationBar.prefersLargeTitles = true

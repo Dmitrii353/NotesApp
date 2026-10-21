@@ -15,15 +15,15 @@ struct CategoryTask {
     static func icon(for nameCategory: String) -> String {
         switch nameCategory {
         case "Работа":
-            return "handbag"
+            return "briefcase"
         case "Учёба":
-            return "book.fill"
+            return "book"
         case "Продукты":
-            return "cart.fill"
+            return "cart"
         case "Личное": 
-            return "person.fill"
+            return "person"
         case "Здоровье":
-            return "heart.fill"
+            return "heart"
         case "Покупки": 
             return "gym.bag"
         case "Хобби":
@@ -31,40 +31,69 @@ struct CategoryTask {
         case "Цели":
             return "pencil"
         case "Дом":
-            return "house.fill"
+            return "house"
         case "Другое":
-            return "ellipsis.circle.fill"
+            return "ellipsis.circle"
         case "Идеи":
-            return "lightbulb.fill"
+            return "lightbulb"
         default:
-            return "folder.fill"
+            return "folder"
         }
     }
     
     static func color(for nameCategory: String) -> UIColor {
         switch nameCategory {
     case "Работа":
-        return .systemBlue
+        return .colorJob
     case "Учёба":
-        return .systemIndigo
+        return .colorStudy
     case "Продукты":
-        return .systemOrange
+        return .colorProducts
     case "Личное":
-        return .systemPurple
+        return .colorPersonal
     case "Здоровье":
-        return .systemPink
+        return .colorHealth
     case "Покупки":
-        return .systemGreen
+        return .colorShop
     case "Хобби":
-        return .systemCyan
+        return .colorHobby
     case "Цели":
-        return .systemPurple
+        return .colorGoals
     case "Дом":
-        return .systemTeal
+        return .colorHouse
     case "Другое":
-        return .systemGray
+        return .colorOther
     case "Идеи":
-        return .systemYellow
+        return .lightYellow
+    default:
+        return .systemGray
+            }
+        }
+    
+    static func colorIcon(for nameCategory: String) -> UIColor {
+        switch nameCategory {
+    case "Работа":
+        return .colorJobIcon
+    case "Учёба":
+        return .colorStudyIcon
+    case "Продукты":
+        return .colorProductsIcon
+    case "Личное":
+        return .colorPersonalIcon
+    case "Здоровье":
+        return .colorHealthIcon
+    case "Покупки":
+        return .colorShopIcon
+    case "Хобби":
+        return .colorHobbyIcon
+    case "Цели":
+        return .colorGoalsIcon
+    case "Дом":
+        return .colorHouseIcon
+    case "Другое":
+        return .colorOtherIcon
+    case "Идеи":
+            return .colorIdeaIcon
     default:
         return .systemGray
             }
