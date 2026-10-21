@@ -12,10 +12,9 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
     var note: Note?
     var coreManager = CoreManager.shared
     
-   private var colorCell: [UIColor] = [.lightBlue,.lighthacky,.lightPink,.lightPurple]
     lazy var addView:UIView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
-        $0.backgroundColor = colorCell.randomElement()
+        $0.backgroundColor = .white
         $0.layer.cornerRadius = 15
         $0.layer.masksToBounds = true
         $0.layer.shadowColor = UIColor.black.cgColor

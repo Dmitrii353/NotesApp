@@ -11,7 +11,6 @@ class AddNoteView: UIViewController {
 
     var tasks: Tasks?
     private var coreManager = CoreManager.shared
-   private var colorCell: [UIColor] = [.lightBlue,.lighthacky,.lightPurple]
     
     lazy var nameNote: UITextField = {
         $0.translatesAutoresizingMaskIntoConstraints = false
@@ -117,7 +116,7 @@ class AddNoteView: UIViewController {
     }
     
     private func setupElements() {
-        view.backgroundColor = colorCell.randomElement()
+        view.backgroundColor = .white
         title = "Добавить заметку"
         navigationController?.navigationBar.prefersLargeTitles = true
         view.addSubViews(nameNote,imageNote,descriptionLabel,detailNote,saveNote)
