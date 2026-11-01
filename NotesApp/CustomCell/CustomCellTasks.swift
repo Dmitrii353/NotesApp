@@ -19,9 +19,9 @@ class CustomCellTasks: UICollectionViewCell, SetupNewCell {
         return $0
     }(UIView())
     
-    lazy var countNote: UILabel = AddLabel(fontText: 12, fontW: .medium, colorText: .colorDescriptionLabel)
+    lazy var countNote: UILabel = AddLabel(fontText: 12, fontW: .regular, colorText: .colorDescriptionLabel)
     lazy var nameTask: UILabel = AddLabel(fontText: 18, fontW: .bold, colorText: .black, textAlignmentLabel: .left)
-    lazy var datetask: UILabel = AddLabel(fontText: 12, fontW: .medium, colorText: .colorDescriptionLabel)
+    lazy var datetask: UILabel = AddLabel(fontText: 12, fontW: .regular, colorText: .colorDescriptionLabel)
     lazy var deleteTask: UIButton = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.setImage(UIImage(systemName: "xmark.app"), for: .normal)
