@@ -16,4 +16,11 @@ extension Date {
         
         return formatter.string(from: self)
     }
+    
+    func formatDateForListNoteView() ->String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ru_RU")
+        formatter.dateFormat = "d MMM yyyy"
+        return formatter.string(from: self)
+    }
 }

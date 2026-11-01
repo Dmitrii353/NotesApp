@@ -19,7 +19,7 @@ class AddLabel: UILabel, SetupLabel {
     var colorText: UIColor
     var textAlignmentLabel: NSTextAlignment
     
-    init(fontText: CGFloat,fontW: UIFont.Weight,colorText: UIColor, textAlignmentLabel: NSTextAlignment = .justified){
+    init(fontText: CGFloat,fontW: UIFont.Weight,colorText: UIColor = .black, textAlignmentLabel: NSTextAlignment = .justified){
         self.fontText = fontText
         self.fontW = fontW
         self.colorText = colorText
@@ -30,7 +30,7 @@ class AddLabel: UILabel, SetupLabel {
         textColor = colorText
         font = .systemFont(ofSize: fontText, weight: fontW)
         textAlignment = textAlignmentLabel
-//        numberOfLines = 0
+        numberOfLines = 0
         
     }
     
