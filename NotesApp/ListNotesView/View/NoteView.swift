@@ -9,7 +9,6 @@ import UIKit
 
 protocol NoteViewProtocol: AnyObject {
     func reloadData()
-    func deleteNote(at id: String)
     func showError(message: String)
 }
 
@@ -72,22 +71,13 @@ class NoteView: UIViewController, NoteViewProtocol {
         $0.heightAnchor.constraint(equalToConstant: 24).isActive = true
         $0.widthAnchor.constraint(equalToConstant: 50).isActive = true
         $0.layer.cornerRadius = 12
+        $0.addSubview(precentOfCompletedNotesLabel)
+
         return $0
     }(UIView())
     
     lazy var precentOfCompletedNotesLabel: UILabel = AddLabel(fontText: 12, fontW: .bold, textAlignmentLabel: .center)
-    //    lazy var currentNotesLabel: UILabel = AddLabel(fontText: 18, fontW: .bold)
-    //    lazy var activeNotesLabel: UILabel = AddLabel(fontText: 12, fontW: .medium, colorText: .colorDescriptionLabel)
-    //    lazy var currentNotesStackView: UIStackView = {
-    //        $0.translatesAutoresizingMaskIntoConstraints = false
-    //        $0.heightAnchor.constraint(equalToConstant: 28).isActive = true
-    //        $0.axis = .horizontal
-    //        $0.alignment = .center
-    //        $0.distribution = .equalSpacing
-    //        $0.addArrangesViews(currentNotesLabel,activeNotesLabel)
-    //        return $0
-    //    }(UIStackView())
-    // MARK: - Таблица с невыполненными заметками
+    // MARK: - Таблица с заметками
     lazy var noteTableView: UITableView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.backgroundColor = .colorBackgroundView
@@ -117,7 +107,6 @@ class NoteView: UIViewController, NoteViewProtocol {
                                              countOfCompletedNotes,
                                              progressViewOfCompletedNotes,
                                              backgroundViewPrecentOfCompleted)
-        backgroundViewPrecentOfCompleted.addSubview(precentOfCompletedNotesLabel)
         view.backgroundColor = .colorBackgroundView
         installingNavigationBarItemsButtons()
         setupElementscategoryTasks()
@@ -148,8 +137,6 @@ class NoteView: UIViewController, NoteViewProtocol {
         backgroundViewPrecentOfCompleted.backgroundColor = CategoryTask.color(for: task.name ?? "")
         precentOfCompletedNotesLabel.text = "\(task.progressInt)%"
         precentOfCompletedNotesLabel.textColor = CategoryTask.colorIcon(for: task.name ?? "")
-        //        currentNotesLabel.text = "Текущие заметки"
-        //        activeNotesLabel.text = presenter.countActiveNotes()
     }
     
     private func updateTableHeight() {
@@ -166,32 +153,27 @@ class NoteView: UIViewController, NoteViewProtocol {
             guard let task = presenter.tasks else { return }
             
             updateTableHeight()
-            //            precentOfCompletedNotesLabel.text = "\(task.progressInt)%"
             progressViewOfCompletedNotes.progress = task.progress
             countOfCompletedNotes.text = presenter.countOfCompletedNotesString()
             precentOfCompletedNotesLabel.text = "\(task.progressInt)%"
-            
-            // под вопросом
+            categorySubtitleLabel.text = "Создана \(presenter.installElementDateCreationTask()) · \(presenter.installCountNotes())"
         }
     }
-    
-    func deleteNote(at id: String) {
-        let index = presenter.tasks?.notes?.allObjects as! [Note]
-        guard let noteId = index.firstIndex(where: {$0.id == id}) else {
-            reloadData()
-            return
-        }
-        let indexPath = IndexPath(row: noteId, section: 0)
-        noteTableView.performBatchUpdates {
-            noteTableView.deleteRows(at: [indexPath], with: .fade)
-        }
-    }
-    
+        
     @objc
     func addNote(){
         let Addnote = AddNoteView()
         Addnote.tasks = presenter.tasks
         navigationController?.pushViewController(Addnote, animated: true)
+    }
+    
+    func confirmDeleteNote(with id: String) {
+        let alert = UIAlertController(title: "Удалить заметку?", message: "Это действие нельзя отменить", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Удалить", style: .destructive, handler: { [weak self] _ in
+            self?.presenter.deleteNote(with: id)
+        }))
+        present(alert, animated: true)
     }
     
     func showError(message: String) {
@@ -202,7 +184,7 @@ class NoteView: UIViewController, NoteViewProtocol {
     
     
     private func setupConstraints(){
-        tableHeightConstaint = noteTableView.heightAnchor.constraint(equalToConstant: 300)
+        tableHeightConstaint = noteTableView.heightAnchor.constraint(equalToConstant: 250)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -258,17 +240,12 @@ class NoteView: UIViewController, NoteViewProtocol {
             precentOfCompletedNotesLabel.centerXAnchor.constraint(equalTo: backgroundViewPrecentOfCompleted.centerXAnchor),
             precentOfCompletedNotesLabel.centerYAnchor.constraint(equalTo: backgroundViewPrecentOfCompleted.centerYAnchor),
             
-            //            currentNotesStackView.topAnchor.constraint(equalTo: progressCardCategoryView.bottomAnchor, constant: 32),
-            //            currentNotesStackView.leadingAnchor.constraint(equalTo: progressCardCategoryView.leadingAnchor),
-            //            currentNotesStackView.trailingAnchor.constraint(equalTo: progressCardCategoryView.trailingAnchor),
-            
-            noteTableView.topAnchor.constraint(equalTo: progressCardCategoryView.bottomAnchor, constant: 72),
+            noteTableView.topAnchor.constraint(equalTo: progressCardCategoryView.bottomAnchor, constant: 32),
             noteTableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             noteTableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             noteTableView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -30),
             tableHeightConstaint
             
-            //MARK: после внесения всех элементов необходимо добавить размеры таблицы
         ])
     }
 }
@@ -278,7 +255,7 @@ extension NoteView: UITableViewDelegate,UITableViewDataSource {
         return 2
     }
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 28
+        return 20
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -326,9 +303,9 @@ extension NoteView: UITableViewDelegate,UITableViewDataSource {
         cell.onToggle = { [weak self] id in
             self?.presenter.toggleNote(with: id)
         }
-        cell.deleteNote.tag = indexPath.row
-        cell.deleteNote.addTarget(self, action: #selector(deleteNoteTapped), for: .touchUpInside)
-        
+        cell.onDelete = {[weak self] id in
+            self?.confirmDeleteNote(with: id)
+        }
         return cell
     }
     
@@ -344,14 +321,5 @@ extension NoteView: UITableViewDelegate,UITableViewDataSource {
         navigationController?.pushViewController(oneNote, animated: true)
     }
     
-    @objc private func deleteNoteTapped(_ sender: UIButton) {
-        let index = sender.tag
-        let notes = presenter.tasks?.notes?.allObjects as? [Note]
-        guard index < notes?.count ?? 0 else { return }
-        let oneNote = notes?[index]
-        if let noteId = oneNote?.id {
-            presenter.deleteNote(with: noteId)
-        }
-    }
 }
 

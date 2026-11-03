@@ -40,8 +40,8 @@ class MainTaskPresenter: MainTaskPresenterProtocol {
         if let taskToDelete = tasks.first(where: {$0.id == id }) {
             coreManager.deleteTask(task: taskToDelete)
         }
-        tasks.removeAll { $0.id == id }
-        view?.deleteItem(at: id)
+//        tasks.removeAll { $0.id == id }
+       // view?.deleteItem(at: id)
         updateCollectionCoreManager()
     }
     
