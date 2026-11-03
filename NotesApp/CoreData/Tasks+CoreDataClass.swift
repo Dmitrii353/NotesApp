@@ -61,6 +61,6 @@ extension Tasks {
     var progressInt: Int {
         guard let countNotes = self.notes?.allObjects as? [Note], !countNotes.isEmpty else { return 0 }
         let completedCount = countNotes.filter {$0.execution}.count
-        return (completedCount / countNotes.count) * 100
+        return (Int(Float(completedCount) / Float(countNotes.count) * 100))
     }
 }

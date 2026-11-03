@@ -9,7 +9,6 @@ import UIKit
 
 protocol TaskViewProtocol: AnyObject {
     func reloadData()
-    func deleteItem(at id: String)
     func createNewTask(_ category: String)
 }
 
@@ -142,7 +141,6 @@ final class TasksView: UIViewController, TaskViewProtocol {
     override func viewWillAppear(_ animated: Bool) {
         self.mainTaskPresenter.updateCollectionCoreManager()
         
-        
     }
     
     override func viewDidLoad() {
@@ -204,17 +202,6 @@ final class TasksView: UIViewController, TaskViewProtocol {
             updateTableHeight()
             countOfCompletedTasks.text = mainTaskPresenter.countOfCompletedTasks()
             progressCompletedNotes.progress = mainTaskPresenter.countProgressAllNotes()
-        }
-    }
-    
-    func deleteItem(at id: String) {
-        guard let index = mainTaskPresenter.tasks.firstIndex(where: {$0.id == id}) else {
-            reloadData()
-            return
-        }
-        let indexPath = IndexPath(item: index, section: 0)
-        taskCollectionView.performBatchUpdates {
-            taskCollectionView.deleteItems(at: [indexPath])
         }
     }
     
@@ -306,8 +293,9 @@ extension TasksView: UICollectionViewDelegate, UICollectionViewDataSource {
         let cell = taskCollectionView.dequeueReusableCell(withReuseIdentifier: CustomCellTasks.reuseId, for: indexPath) as! CustomCellTasks
         let task = mainTaskPresenter.tasks[indexPath.item]
         cell.setupCell(tasks: task)
-        cell.deleteTask.tag = indexPath.item
-        cell.deleteTask.addTarget(self, action: #selector(deleteTask), for: .touchUpInside)
+        cell.onDelete = {[weak self] id in
+            self?.mainTaskPresenter.deleteTask(with: id)
+        }
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -315,16 +303,6 @@ extension TasksView: UICollectionViewDelegate, UICollectionViewDataSource {
         let noteView = Builder.createNoteView(tasks: task)
         navigationController?.pushViewController(noteView, animated: true)
         
-    }
-    
-    @objc
-    func deleteTask(_ sender: UIButton) {
-        let index = sender.tag
-        guard index < mainTaskPresenter.tasks.count else { return }
-        let task = mainTaskPresenter.tasks[index]
-        if let taskId = task.id {
-            mainTaskPresenter.deleteTask(with: taskId)
-        }
     }
 }
 

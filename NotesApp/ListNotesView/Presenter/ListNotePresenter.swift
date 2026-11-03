@@ -63,18 +63,17 @@ class ListNotePresenter: ListNotePresenterProtocol {
     }
     
     func deleteNote(with id: String) {
-        guard var noteToDelete = tasks?.notes?.allObjects as? [Note], let index = noteToDelete.first(where: {$0.id == id}) else {
+        guard let notes = tasks?.notes?.allObjects as? [Note], let note = notes.first(where: {$0.id == id}) else {
             view?.showError(message: "Ошибка удаления заметки")
             return
         }
-        coreManager.deleteNote(note: index)
+        coreManager.deleteNote(note: note)
         coreManager.saveContext()
-        
-        noteToDelete.removeAll{ $0.id == id }
-        
-        view?.deleteNote(at: id)
+                
         buildViewModel()
-        view?.reloadData()
+        updateNotes()
+        print("active:", activeNotes.count, "completed:", completedNote.count)
+        print("progress:", tasks?.progress ?? -1)
     }
     
     func installElementDateCreationTask() -> String {

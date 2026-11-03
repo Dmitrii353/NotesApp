@@ -9,7 +9,9 @@ import UIKit
 
 class CustomCellTasks: UICollectionViewCell, SetupNewCell {
     static var reuseId: String = "CustomCellTasks"
-        
+    var onDelete: ((String) -> Void)?
+    private var taskId: String?
+    
     lazy var addView: UIView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.layer.cornerRadius = 50
@@ -26,6 +28,7 @@ class CustomCellTasks: UICollectionViewCell, SetupNewCell {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.setImage(UIImage(systemName: "xmark.app"), for: .normal)
         $0.tintColor = .colorDescriptionLabel
+        $0.addTarget(self, action: #selector(deleteTaskTapped), for: .touchUpInside)
         return $0
     }(UIButton())
    
@@ -88,8 +91,14 @@ class CustomCellTasks: UICollectionViewCell, SetupNewCell {
         addView.addSubViews(nameTask,countNote,calendarSystemImage,datetask,categoryImageAndSettingsButton,progressTaskView)
     }
     
+    @objc
+    func deleteTaskTapped() {
+        guard let id = taskId else { return }
+        onDelete?(id)
+    }
     
     func setupCell(tasks: Tasks) {
+        taskId = tasks.id
         nameTask.text = tasks.name
         countNote.text = tasks.progressText
         progressTaskView.progress = tasks.progress

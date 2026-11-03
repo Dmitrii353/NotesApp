@@ -11,6 +11,7 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
     static var reuseId: String = "CustomCellNote"
     var onToggle: ((String) -> Void)?
     private var noteId: String?
+    var onDelete: ((String) -> Void)?
     
     lazy var addView: UIView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
@@ -38,10 +39,12 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
 
     lazy var deleteNote: UIButton = {
         $0.translatesAutoresizingMaskIntoConstraints = false
-        $0.setImage(UIImage(systemName: "xmark.app"), for: .normal)
-        $0.tintColor = .darkGray
+        let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .light)
+        $0.setImage(UIImage(systemName: "xmark.app", withConfiguration: config), for: .normal)
+        $0.tintColor = .colorDescriptionLabel
         $0.heightAnchor.constraint(equalToConstant: 24).isActive = true
         $0.widthAnchor.constraint(equalToConstant: 24).isActive = true
+        $0.addTarget(self, action: #selector(deleteNoteTapped), for: .touchUpInside)
         return $0
     }(UIButton())
     
@@ -53,7 +56,6 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
     }
    
    func setupElements() {
-    
         contentView.addSubview(addView)
         addView.addSubViews(nameNote,detailsNote,checkBox,deleteNote)
        contentView.backgroundColor = .colorBackgroundView
@@ -68,14 +70,16 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
             checkBox.topAnchor.constraint(equalTo: addView.topAnchor,constant: 18),
             checkBox.leadingAnchor.constraint(equalTo: addView.leadingAnchor, constant: 20),
             
-            nameNote.topAnchor.constraint(equalTo: addView.topAnchor, constant: 16),
+            nameNote.topAnchor.constraint(equalTo: addView.topAnchor,constant: 8),
             nameNote.leadingAnchor.constraint(equalTo: checkBox.trailingAnchor,constant: 14),
-            nameNote.trailingAnchor.constraint(equalTo: addView.trailingAnchor, constant: -60),
+            nameNote.trailingAnchor.constraint(equalTo: addView.trailingAnchor, constant: -55),
             nameNote.heightAnchor.constraint(equalToConstant: 45),
             
             detailsNote.topAnchor.constraint(equalTo: nameNote.bottomAnchor, constant: 4),
             detailsNote.leadingAnchor.constraint(equalTo: nameNote.leadingAnchor),
             detailsNote.trailingAnchor.constraint(equalTo: nameNote.trailingAnchor),
+            detailsNote.heightAnchor.constraint(equalToConstant: 45),
+
             
             addView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
             
@@ -94,9 +98,15 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
     
     @objc
      func checkboxTapped() {
-         guard let id = noteId else { return}
+         guard let id = noteId else { return }
          onToggle?(id)
        }
+    
+    @objc
+    func deleteNoteTapped() {
+        guard let id = noteId else { return }
+        onDelete?(id)
+    }
    
     private func updateCheckBox(isCompleted: Bool) {
         let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .medium)
