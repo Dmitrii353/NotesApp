@@ -25,7 +25,7 @@ extension Note {
     @NSManaged public var photo: String?
     @NSManaged public var execution: Bool
     @NSManaged public var tasks: Tasks?
-
+    @NSManaged public var priority: String?
 }
 
 extension Note : Identifiable {

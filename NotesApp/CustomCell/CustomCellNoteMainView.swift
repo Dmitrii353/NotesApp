@@ -9,7 +9,8 @@ import UIKit
 
 class CustomCellNoteMainView: UITableViewCell, SetupNewCell {
     static let reuseId: String = "CustomCellNoteMainView"
-    
+    private var noteId: String?
+    var onToggle: ((String) -> Void)?
     lazy var tableNoteView: UIView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.layer.cornerRadius = 30
@@ -18,8 +19,11 @@ class CustomCellNoteMainView: UITableViewCell, SetupNewCell {
         $0.layer.borderWidth = 0.5
         $0.layer.borderColor = UIColor.systemGray2.cgColor
         $0.heightAnchor.constraint(equalToConstant: 64).isActive = true
-        $0.layer.shadowOpacity = 1
-        $0.layer.shadowRadius = 5
+        $0.layer.masksToBounds = false
+        $0.layer.shadowColor = UIColor.black.cgColor
+        $0.layer.shadowOffset = CGSize(width: 0, height: 1)
+        $0.layer.shadowOpacity = 0.08
+        $0.layer.shadowRadius = 4
         return $0
     }(UIView())
     
@@ -55,10 +59,10 @@ class CustomCellNoteMainView: UITableViewCell, SetupNewCell {
     }(UIStackView())
     lazy var noteIsCompleted: UIButton = {
         $0.translatesAutoresizingMaskIntoConstraints = false
-        $0.tintColor = .colorCheckBox
+        $0.tintColor = .colorCheckCircleNote
         $0.heightAnchor.constraint(equalToConstant: 24).isActive = true
-        $0.setImage(UIImage(systemName: "paperplane.circle"), for: .normal)
         $0.widthAnchor.constraint(equalToConstant: 24).isActive = true
+        $0.addTarget(self, action: #selector(checkBoxTapped), for: .touchUpInside)
         return $0
     }(UIButton())
     
@@ -77,6 +81,8 @@ class CustomCellNoteMainView: UITableViewCell, SetupNewCell {
         categoryNotesImage.tintColor = CategoryTask.colorIcon(for: categoryName)
         nameNotesLabel.text = note.name
         categoryNotesLabel.text = categoryName
+        noteId = note.id
+        updateCheckBox(is: note.execution)
         if let date = note.tasks?.date {
             dateNotesLabel.text = date.formatDateForCell()
         } else {
@@ -90,6 +96,19 @@ class CustomCellNoteMainView: UITableViewCell, SetupNewCell {
                                   nameNotesLabel,
                                   descriptionNoteStackView,
                                   noteIsCompleted)
+    }
+    
+    
+    @objc
+    func checkBoxTapped() {
+        guard let id = noteId else { return }
+        onToggle?(id)
+    }
+    
+    private func updateCheckBox(is completed: Bool) {
+        let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .medium)
+        let image = completed ? "checkmark.circle.fill" : "circle"
+        noteIsCompleted.setImage(UIImage(systemName: image, withConfiguration: config), for: .normal)
     }
     
     func setupConstraints() {

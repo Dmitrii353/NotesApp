@@ -16,16 +16,36 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
     lazy var addView: UIView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.backgroundColor = .white
-        $0.layer.cornerRadius = 55
-        $0.layer.masksToBounds = true
-        $0.heightAnchor.constraint(equalToConstant: 145).isActive = true
+        $0.layer.cornerRadius = 24
+//        $0.heightAnchor.constraint(equalToConstant: 145).isActive = true
+        $0.layer.masksToBounds = false
         $0.layer.shadowColor = UIColor.black.cgColor
-        $0.layer.shadowOffset = CGSize(width: 5, height: 5)
-        $0.layer.shadowOpacity = 0.5
-        $0.layer.shadowRadius = 7
+        $0.layer.shadowOffset = CGSize(width: 0, height: 1)
+        $0.layer.shadowOpacity = 0.08
+        $0.layer.shadowRadius = 4
         return $0
     }(UIView())
-   
+   // MARK: - StackView с отображением приоритета заметки
+    lazy var priorityStackView: UIStackView = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.addArrangesViews(priorityIconImage,priorityNoteLabel)
+        $0.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        $0.widthAnchor.constraint(equalToConstant: 80).isActive = true
+        $0.alignment = .center
+        $0.axis = .horizontal
+        $0.spacing = 4
+        $0.distribution = .fillProportionally
+        return $0
+    }(UIStackView())
+    lazy var priorityNoteLabel: UILabel = AddLabel(fontText: 11, fontW: .medium)
+    lazy var priorityIconImage: UIImageView = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.image = UIImage(systemName: "flag")
+        $0.heightAnchor.constraint(equalToConstant: 14).isActive = true
+        $0.widthAnchor.constraint(equalToConstant: 14).isActive = true
+        return $0
+    }(UIImageView())
+    
     lazy var nameNote: UILabel = AddLabel(fontText: 16, fontW: .bold, colorText: .black,textAlignmentLabel: .left)
     lazy var checkBox: UIButton = {
         $0.translatesAutoresizingMaskIntoConstraints = false
@@ -57,8 +77,12 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
    
    func setupElements() {
         contentView.addSubview(addView)
-        addView.addSubViews(nameNote,detailsNote,checkBox,deleteNote)
+        addView.addSubViews(nameNote,detailsNote,checkBox,deleteNote,priorityStackView)
        contentView.backgroundColor = .colorBackgroundView
+       nameNote.numberOfLines = 0          // или 2
+       nameNote.lineBreakMode = .byWordWrapping
+       detailsNote.numberOfLines = 2
+       detailsNote.lineBreakMode = .byTruncatingTail
     }
     
   func setupConstraints() {
@@ -66,32 +90,37 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
             addView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
             addView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             addView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            addView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
             
             checkBox.topAnchor.constraint(equalTo: addView.topAnchor,constant: 18),
             checkBox.leadingAnchor.constraint(equalTo: addView.leadingAnchor, constant: 20),
             
+            deleteNote.topAnchor.constraint(equalTo: checkBox.topAnchor),
+            deleteNote.trailingAnchor.constraint(equalTo: addView.trailingAnchor, constant: -20),
+            
             nameNote.topAnchor.constraint(equalTo: addView.topAnchor,constant: 8),
             nameNote.leadingAnchor.constraint(equalTo: checkBox.trailingAnchor,constant: 14),
             nameNote.trailingAnchor.constraint(equalTo: addView.trailingAnchor, constant: -55),
-            nameNote.heightAnchor.constraint(equalToConstant: 45),
             
             detailsNote.topAnchor.constraint(equalTo: nameNote.bottomAnchor, constant: 4),
             detailsNote.leadingAnchor.constraint(equalTo: nameNote.leadingAnchor),
             detailsNote.trailingAnchor.constraint(equalTo: nameNote.trailingAnchor),
-            detailsNote.heightAnchor.constraint(equalToConstant: 45),
 
-            
-            addView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
-            
-            deleteNote.topAnchor.constraint(equalTo: checkBox.topAnchor),
-            deleteNote.trailingAnchor.constraint(equalTo: addView.trailingAnchor, constant: -20),
+            priorityStackView.topAnchor.constraint(equalTo: detailsNote.bottomAnchor, constant: 10),
+            priorityStackView.trailingAnchor.constraint(equalTo: nameNote.trailingAnchor),
+            priorityStackView.bottomAnchor.constraint(equalTo: addView.bottomAnchor, constant: -16),
+
         ])
     }
     
     func configure(note: Note) {
+        let priority = NotePriority.from(note.priority)
         noteId = note.id
         nameNote.text = note.name
         detailsNote.text = note.details
+        priorityIconImage.tintColor = priority.color
+        priorityNoteLabel.text = priority.title
+        priorityNoteLabel.textColor = priority.color
         updateCheckBox(isCompleted: note.execution)
 
     }

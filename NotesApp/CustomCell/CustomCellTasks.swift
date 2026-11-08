@@ -16,8 +16,11 @@ class CustomCellTasks: UICollectionViewCell, SetupNewCell {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.layer.cornerRadius = 50
         $0.backgroundColor = .white
-        $0.layer.borderWidth = 0.5
-        $0.layer.borderColor = UIColor.systemGray2.cgColor
+        $0.layer.masksToBounds = false
+        $0.layer.shadowColor = UIColor.black.cgColor
+        $0.layer.shadowOffset = CGSize(width: 0, height: 1)
+        $0.layer.shadowOpacity = 0.08
+        $0.layer.shadowRadius = 4
         return $0
     }(UIView())
     
