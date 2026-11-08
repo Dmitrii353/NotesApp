@@ -88,7 +88,7 @@ class OneNoteView: UIViewController {
             detailsNote.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
             detailsNote.heightAnchor.constraint(equalToConstant: 250),
             
-            updateButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
+            updateButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -80),
             updateButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
             updateButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
             updateButton.heightAnchor.constraint(equalToConstant: 60),

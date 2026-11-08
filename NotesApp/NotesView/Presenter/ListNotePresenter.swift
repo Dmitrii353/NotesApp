@@ -21,6 +21,7 @@ protocol ListNotePresenterProtocol: AnyObject {
     var countOfCompletedNotes: Int { get }
     var countActiveNotes: Int { get }
     func toggleNote(with id: String)
+    func sortingNotesByPriority()
 }
 
 class ListNotePresenter: ListNotePresenterProtocol {
@@ -30,6 +31,7 @@ class ListNotePresenter: ListNotePresenterProtocol {
     var activeNotes: [Note] = []
     var completedNote: [Note] = []
     var tasks: Tasks?
+    private var isPriorityDescending = true
     private var noteViewModel: [NoteViewModel] = []
     init(view: NoteViewProtocol?, tasks: Tasks?) {
         self.view = view
@@ -69,11 +71,9 @@ class ListNotePresenter: ListNotePresenterProtocol {
         }
         coreManager.deleteNote(note: note)
         coreManager.saveContext()
-                
+        
         buildViewModel()
         updateNotes()
-        print("active:", activeNotes.count, "completed:", completedNote.count)
-        print("progress:", tasks?.progress ?? -1)
     }
     
     func installElementDateCreationTask() -> String {
@@ -133,5 +133,34 @@ class ListNotePresenter: ListNotePresenterProtocol {
         coreManager.saveContext()
         updateNotes() // пересобирает activeNotes / completedNotes
         view?.reloadData()
+    }
+    
+    func sortingNotesByPriority() {
+        func priorityWeight(_ raw: String?) -> Int {
+            switch NotePriority.from(raw) {
+            case.high:
+                return 3
+            case.medium:
+                return 2
+            case.low:
+                return 1
+            case.notSelected:
+                return 0
+            }
+        }
+        isPriorityDescending.toggle()
+        
+        let ascending = !isPriorityDescending
+        activeNotes.sort {
+            ascending ?
+            priorityWeight($0.priority) < priorityWeight($1.priority): priorityWeight($0.priority) > priorityWeight($1.priority)
+        }
+        
+        completedNote.sort {
+            ascending ?
+            priorityWeight($0.priority) < priorityWeight($1.priority): priorityWeight($0.priority) > priorityWeight($1.priority)
+        }
+        view?.reloadData()
+        
     }
 }

@@ -16,6 +16,7 @@ protocol MainTaskPresenterProtocol: AnyObject  {
     func countOfCompletedTasks() -> String
     func countProgressAllNotes() -> Float
     var notes: [Note] { get }
+    func updateToggleNote(with id: String)
 }
 
 class MainTaskPresenter: MainTaskPresenterProtocol {
@@ -24,7 +25,6 @@ class MainTaskPresenter: MainTaskPresenterProtocol {
     var tasks : [Tasks] = []
     var notes: [Note] = []
     private let coreManager = CoreManager.shared
-   // private let taskModel: [TaskModel] = TaskModel.mockPhrases()
     init(view: TaskViewProtocol?) {
         self.view = view
     }
@@ -40,14 +40,20 @@ class MainTaskPresenter: MainTaskPresenterProtocol {
         if let taskToDelete = tasks.first(where: {$0.id == id }) {
             coreManager.deleteTask(task: taskToDelete)
         }
-//        tasks.removeAll { $0.id == id }
-       // view?.deleteItem(at: id)
         updateCollectionCoreManager()
     }
     
     func updateCollectionCoreManager() {
         coreManager.getFolder()
         self.tasks = coreManager.tasks
+        updateUpcomingNotes()
+        view?.reloadData()
+    }
+    
+    func updateToggleNote(with id: String) {
+        guard let note = notes.first(where: {$0.id == id}) else { return }
+        note.execution.toggle()
+        coreManager.saveContext()
         updateUpcomingNotes()
         view?.reloadData()
     }
@@ -69,20 +75,25 @@ class MainTaskPresenter: MainTaskPresenterProtocol {
         let allNotes = tasks.flatMap { task -> [Note] in
             (task.notes?.allObjects as? [Note]) ?? []
         }
-       guard !allNotes.isEmpty else { return "Нет задач"}
+        guard !allNotes.isEmpty else { return "Нет задач"}
         let completed = allNotes.filter {$0.execution}.count
         return "\(completed) из \(allNotes.count)"
     }
     
     func updateUpcomingNotes() {
         let allNotes = tasks.flatMap { task -> [Note] in
-            (task.notes?.allObjects as? [Note] ?? [])
+            (task.notes?.allObjects as? [Note]) ?? []
         }
         notes = allNotes.filter{ note in
             guard let name = note.name else { return false}
             return !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
+        .filter{!$0.execution}
         .sorted {($0.tasks?.date ?? Date.distantPast) > ($1.tasks?.date ?? Date.distantPast)}
+        .prefix(5)
+        .map{$0}
+        
     }
+    
 }
 

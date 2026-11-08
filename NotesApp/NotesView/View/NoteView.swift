@@ -15,11 +15,10 @@ protocol NoteViewProtocol: AnyObject {
 class NoteView: UIViewController, NoteViewProtocol {
     
     var presenter: ListNotePresenterProtocol!
-    private let imageService: ImageServiceProtocol = ImageService()
     private var tableHeightConstaint: NSLayoutConstraint!
     lazy var scrollView: UIScrollView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
-        $0.showsVerticalScrollIndicator = true
+        $0.showsVerticalScrollIndicator = false
         $0.alwaysBounceVertical = true
         return $0
     }(UIScrollView())
@@ -32,6 +31,11 @@ class NoteView: UIViewController, NoteViewProtocol {
         $0.heightAnchor.constraint(equalToConstant: 56).isActive = true
         $0.widthAnchor.constraint(equalToConstant: 56).isActive = true
         $0.layer.cornerRadius = 28
+        $0.layer.masksToBounds = false
+        $0.layer.shadowColor = UIColor.black.cgColor
+        $0.layer.shadowOffset = CGSize(width: 0, height: 2)
+        $0.layer.shadowOpacity = 0.12
+        $0.layer.shadowRadius = 8
         $0.addSubview(categoryIcon)
         return $0
     }(UIView())
@@ -52,6 +56,11 @@ class NoteView: UIViewController, NoteViewProtocol {
         $0.backgroundColor = .white
         $0.heightAnchor.constraint(equalToConstant: 98).isActive = true
         $0.layer.cornerRadius = 30
+        $0.layer.masksToBounds = false
+        $0.layer.shadowColor = UIColor.black.cgColor
+        $0.layer.shadowOffset = CGSize(width: 0, height: 1)
+        $0.layer.shadowOpacity = 0.08
+        $0.layer.shadowRadius = 4
         //$0.layer.cornerRadius = 50 - один из возможных вариантов оформления карточки прогресса
         return $0
     }(UIView())
@@ -111,6 +120,8 @@ class NoteView: UIViewController, NoteViewProtocol {
         installingNavigationBarItemsButtons()
         setupElementscategoryTasks()
         setupConstraints()
+        noteTableView.rowHeight = UITableView.automaticDimension
+        noteTableView.estimatedRowHeight = 140
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!)
     }
     
@@ -119,7 +130,7 @@ class NoteView: UIViewController, NoteViewProtocol {
         let addNoteButton = UIBarButtonItem(image: UIImage(systemName: "plus", withConfiguration: addConfig), style: .done, target: self, action: #selector(addNote))
         addNoteButton.tintColor = .colorButton
         let sortConfig = UIImage.SymbolConfiguration(pointSize: 12, weight: .medium)
-        let sortNotesButton = UIBarButtonItem(image: UIImage(systemName: "arrow.up.arrow.down", withConfiguration: sortConfig), style: .plain, target: self, action: nil)
+        let sortNotesButton = UIBarButtonItem(image: UIImage(systemName: "arrow.up.arrow.down", withConfiguration: sortConfig), style: .plain, target: self, action: #selector(sortedNote))
         navigationItem.largeTitleDisplayMode = .never
         navigationItem.rightBarButtonItems = [addNoteButton,sortNotesButton]
     }
@@ -137,16 +148,17 @@ class NoteView: UIViewController, NoteViewProtocol {
         backgroundViewPrecentOfCompleted.backgroundColor = CategoryTask.color(for: task.name ?? "")
         precentOfCompletedNotesLabel.text = "\(task.progressInt)%"
         precentOfCompletedNotesLabel.textColor = CategoryTask.colorIcon(for: task.name ?? "")
+
     }
     
     private func updateTableHeight() {
         noteTableView.layoutIfNeeded()
-        tableHeightConstaint.constant = noteTableView.contentSize.height
-        
+        tableHeightConstaint.constant = max(noteTableView.contentSize.height, 1)
     }
     
     func reloadData() {
         noteTableView.reloadData()
+        setupElementscategoryTasks()
         
         DispatchQueue.main.async{ [weak self] in
             guard let self = self else { return }
@@ -165,6 +177,11 @@ class NoteView: UIViewController, NoteViewProtocol {
         let Addnote = AddNoteView()
         Addnote.tasks = presenter.tasks
         navigationController?.pushViewController(Addnote, animated: true)
+    }
+    
+    @objc
+    func sortedNote()  {
+        presenter.sortingNotesByPriority()
     }
     
     func confirmDeleteNote(with id: String) {
@@ -187,7 +204,7 @@ class NoteView: UIViewController, NoteViewProtocol {
         tableHeightConstaint = noteTableView.heightAnchor.constraint(equalToConstant: 250)
         
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
@@ -255,7 +272,7 @@ extension NoteView: UITableViewDelegate,UITableViewDataSource {
         return 2
     }
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 20
+        return 44
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -310,16 +327,16 @@ extension NoteView: UITableViewDelegate,UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let note = indexPath.section == 0 ? presenter.activeNotes[indexPath.row]: presenter.completedNote[indexPath.row]
         let oneNote = OneNoteView()
-        if let notes = presenter.tasks?.notes?.allObjects as? [Note] {
-            let note = notes[indexPath.row]
-            oneNote.selectedNoteIndex = indexPath.row
+        
             oneNote.titleNote.text = note.name
             oneNote.detailsNote.text = note.details
             oneNote.tasks = presenter.tasks
-        }
         navigationController?.pushViewController(oneNote, animated: true)
+
+        }
     }
     
-}
+
 

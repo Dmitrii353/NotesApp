@@ -47,22 +47,21 @@ class AddNoteView: UIViewController {
         return $0
     }(UITextView())
     
-    lazy var imageNote: UIImageView = {
+    lazy var priorityControl: UISegmentedControl = {
         $0.translatesAutoresizingMaskIntoConstraints = false
-        $0.layer.cornerRadius = 80
-        $0.layer.masksToBounds = true
-        $0.backgroundColor = .lightGray
-        $0.contentMode = .scaleAspectFill
-        $0.layer.shadowColor = UIColor.systemGray.cgColor
-        $0.layer.shadowOffset = CGSize(width: 15, height: 15)
-        $0.layer.shadowOpacity = 0.5
-        $0.layer.shadowRadius = 7
-        $0.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(imageTapped)))
-        $0.clipsToBounds = true
-        $0.isUserInteractionEnabled = true
+        $0.layer.masksToBounds = false
+        $0.layer.shadowColor = UIColor.black.cgColor
+        $0.layer.shadowOffset = CGSize(width: 0, height: 1)
+        $0.layer.shadowOpacity = 0.12
+        $0.layer.shadowRadius = 4
+        $0.selectedSegmentIndex = 0
         return $0
-    }(UIImageView())
-  
+    }(UISegmentedControl(items: NotePriority.allCases.map(\.title)))
+    
+    var selectedPriority: NotePriority {
+        NotePriority.allCases[priorityControl.selectedSegmentIndex]
+    }
+    
     lazy var saveNote: UIButton = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.backgroundColor = .black
@@ -87,26 +86,12 @@ class AddNoteView: UIViewController {
             alertError(title: "Произошла ошибка", message: "Введите описание")
             return
         }
-        guard let image = imageNote.image, let imageData = image.jpegData(compressionQuality: 0.5) else { return }
         let imageName = "\(UUID().uuidString).jpg"
-        coreManager.saveFile(file: imageData, imageName: imageName)
-        coreManager.createNote(task: tasks, name: name, image: imageName, details: details)
+        coreManager.createNote(task: tasks, name: name, image: imageName, details: details,priority: selectedPriority )
             coreManager.saveContext()
             coreManager.getFolder()
             navigationController?.popViewController(animated: true)
         }
-    lazy var imagePicker: UIImagePickerController = {
-        $0.sourceType = .photoLibrary
-        $0.allowsEditing = true
-        $0.delegate = self
-        return $0
-    }(UIImagePickerController())
-    
-    @objc
-    func imageTapped() {
-        present(imagePicker, animated: true)
-    }
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -119,7 +104,7 @@ class AddNoteView: UIViewController {
         view.backgroundColor = .white
         title = "Добавить заметку"
         navigationController?.navigationBar.prefersLargeTitles = true
-        view.addSubViews(nameNote,imageNote,descriptionLabel,detailNote,saveNote)
+        view.addSubViews(nameNote,descriptionLabel,detailNote,saveNote,priorityControl)
         descriptionLabel.text = "Краткое описание заметки"
         setupConstraints()
     }
@@ -127,10 +112,10 @@ class AddNoteView: UIViewController {
     private func setupConstraints() {
         NSLayoutConstraint.activate([
            
-            imageNote.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            imageNote.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            imageNote.widthAnchor.constraint(equalToConstant: 160),
-            imageNote.heightAnchor.constraint(equalToConstant: 160),
+            priorityControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            priorityControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            priorityControl.heightAnchor.constraint(equalToConstant: 45),
+            priorityControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 5),
            
             nameNote.bottomAnchor.constraint(equalTo: descriptionLabel.topAnchor, constant: -20),
             nameNote.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -160,16 +145,6 @@ class AddNoteView: UIViewController {
     }
 }
 
-extension AddNoteView: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        if let image = info[.editedImage] as? UIImage {
-            imageNote.image = image
-           
-            }
-        
-        picker.dismiss(animated: true)
-    }
-}
 
 
 

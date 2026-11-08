@@ -56,7 +56,7 @@ class CoreManager {
     }
     
     // createNote
-    func createNote(task: Tasks?, name: String,image: String, details: String) {
+    func createNote(task: Tasks?, name: String,image: String, details: String, priority: NotePriority = .medium) {
         guard let task else { return }
         let note = Note(context: persistentContainer.viewContext)
         note.name = name
@@ -64,7 +64,7 @@ class CoreManager {
         note.details = details
         note.id = UUID().uuidString
         note.tasks = task
-        
+        note.priority = priority.rawValue
         saveContext()
         getFolder()
     }
@@ -91,21 +91,21 @@ class CoreManager {
         return url
     }
     
-    func saveFile(file: Data, imageName: String) {
-        let path = path()
-        let photoURL = path.appending(path: "photo/avatar")
-        try? FileManager.default.createDirectory(at: photoURL, withIntermediateDirectories: true)
-        let imageUrl = photoURL.appending(path: imageName)
-        try? file.write(to: imageUrl)
-        print(imageUrl)
-    }
-    
-    func readFile(imageName: String) -> Data? {
-        let path = path().appending(path: "photo/avatar/\(imageName)")
-        let data = try? Data(contentsOf: path)
-        print(path)
-        return data
-    }
+//    func saveFile(file: Data, imageName: String) {
+//        let path = path()
+//        let photoURL = path.appending(path: "photo/avatar")
+//        try? FileManager.default.createDirectory(at: photoURL, withIntermediateDirectories: true)
+//        let imageUrl = photoURL.appending(path: imageName)
+//        try? file.write(to: imageUrl)
+//        print(imageUrl)
+//    }
+//    
+//    func readFile(imageName: String) -> Data? {
+//        let path = path().appending(path: "photo/avatar/\(imageName)")
+//        let data = try? Data(contentsOf: path)
+//        print(path)
+//        return data
+//    }
 }
 
 

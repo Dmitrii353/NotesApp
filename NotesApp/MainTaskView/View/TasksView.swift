@@ -66,12 +66,12 @@ final class TasksView: UIViewController, TaskViewProtocol {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.layer.cornerRadius = 50
         $0.backgroundColor = .colorButton
-        $0.clipsToBounds = true
         $0.heightAnchor.constraint(equalToConstant: 156).isActive = true
-        $0.layer.shadowColor = UIColor.black.cgColor
-        $0.layer.borderWidth = 0.5
+        $0.layer.masksToBounds = false
+        $0.layer.shadowColor = UIColor.colorButton.cgColor
+        $0.layer.shadowOffset = CGSize(width: 0, height: 2)
         $0.layer.shadowOpacity = 0.5
-        $0.layer.shadowOffset = CGSize(width: 20, height: 20)
+        $0.layer.shadowRadius = 8
         return $0
     }(UIView())
     lazy var progressLabelToday: UILabel = {
@@ -83,6 +83,25 @@ final class TasksView: UIViewController, TaskViewProtocol {
         $0.widthAnchor.constraint(equalToConstant: 157).isActive = true
         return $0
     }(UILabel())
+    
+    lazy var iconContainerCheckmarkImage: UIView = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        $0.widthAnchor.constraint(equalToConstant: 44).isActive = true
+        $0.layer.cornerRadius = 20
+        $0.clipsToBounds = true
+        $0.addSubview(progressCardCheckMarkImage)
+        $0.backgroundColor = .colorProgressCard
+        return $0
+    }(UIView())
+    lazy var progressCardCheckMarkImage: UIImageView = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.tintColor = .white
+        let appConfig = UIImage.SymbolConfiguration(pointSize: 22, weight: .light)
+        $0.image = UIImage(named: "doubleCheckmark", in: nil, with: appConfig)
+        return $0
+    }(UIImageView())
+    
     lazy var countOfCompletedTasks: UILabel = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.font = .systemFont(ofSize: 30, weight: .bold)
@@ -154,7 +173,7 @@ final class TasksView: UIViewController, TaskViewProtocol {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         contentView.addSubViews(taskCollectionView,tableNotes,upComingAffairsStack,categoriesStack,progressCardView)
-        progressCardView.addSubViews(progressLabelToday,countOfCompletedTasks,progressCompletedNotes,phrasesLabel)
+        progressCardView.addSubViews(progressLabelToday,countOfCompletedTasks,progressCompletedNotes,phrasesLabel,iconContainerCheckmarkImage)
         categoriesStack.addArrangesViews(categoriesLabel,allCategoriesButton)
         upComingAffairsStack.addArrangesViews(upcomingAffairsLabel,showAllUpComingAffairsButton)
         phrasesLabel.text = mainTaskPresenter.generatingMotivationPhrases()
@@ -229,7 +248,7 @@ final class TasksView: UIViewController, TaskViewProtocol {
         collectionHeightConstraint = taskCollectionView.heightAnchor.constraint(equalToConstant: 180)
         tableHeightConstraint = tableNotes.heightAnchor.constraint(equalToConstant: 300)
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -243,6 +262,12 @@ final class TasksView: UIViewController, TaskViewProtocol {
             progressCardView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
             progressCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             progressCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            
+            iconContainerCheckmarkImage.topAnchor.constraint(equalTo: progressCardView.topAnchor, constant: 20),
+            iconContainerCheckmarkImage.trailingAnchor.constraint(equalTo: progressCardView.trailingAnchor, constant: -20),
+            
+            progressCardCheckMarkImage.centerXAnchor.constraint(equalTo: iconContainerCheckmarkImage.centerXAnchor),
+            progressCardCheckMarkImage.centerYAnchor.constraint(equalTo: iconContainerCheckmarkImage.centerYAnchor),
             
             progressLabelToday.topAnchor.constraint(equalTo: progressCardView.topAnchor, constant: 20),
             progressLabelToday.leadingAnchor.constraint(equalTo: progressCardView.leadingAnchor, constant: 20),
@@ -333,8 +358,20 @@ extension TasksView: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: CustomCellNoteMainView.reuseId, for: indexPath) as! CustomCellNoteMainView
         let note = mainTaskPresenter.notes[indexPath.row]
         cell.setupElementsCell(note: note)
+        cell.onToggle = {[weak self] id in
+            self?.mainTaskPresenter.updateToggleNote(with: id)
+        }
         return cell
     }
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let note = mainTaskPresenter.notes[indexPath.row]
+        let oneNote = OneNoteView() // привести к архитектуре MVP (создать презентер)
+        
+        oneNote.detailsNote.text = note.details
+        oneNote.titleNote.text = note.name
+        oneNote.tasks = note.tasks
+        
+        navigationController?.pushViewController(oneNote, animated: true)
+    }
     
 }
