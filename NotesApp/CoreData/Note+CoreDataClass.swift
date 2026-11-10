@@ -22,10 +22,10 @@ extension Note {
     @NSManaged public var details: String?
     @NSManaged public var id: String?
     @NSManaged public var name: String?
-    @NSManaged public var photo: String?
     @NSManaged public var execution: Bool
     @NSManaged public var tasks: Tasks?
     @NSManaged public var priority: String?
+    @NSManaged public var dueDate: Date? 
 }
 
 extension Note : Identifiable {

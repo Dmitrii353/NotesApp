@@ -17,7 +17,6 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.backgroundColor = .white
         $0.layer.cornerRadius = 24
-//        $0.heightAnchor.constraint(equalToConstant: 145).isActive = true
         $0.layer.masksToBounds = false
         $0.layer.shadowColor = UIColor.black.cgColor
         $0.layer.shadowOffset = CGSize(width: 0, height: 1)
@@ -30,19 +29,45 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.addArrangesViews(priorityIconImage,priorityNoteLabel)
         $0.heightAnchor.constraint(equalToConstant: 16).isActive = true
-        $0.widthAnchor.constraint(equalToConstant: 80).isActive = true
         $0.alignment = .center
         $0.axis = .horizontal
         $0.spacing = 4
-        $0.distribution = .fillProportionally
+        $0.distribution = .fill
         return $0
     }(UIStackView())
-    lazy var priorityNoteLabel: UILabel = AddLabel(fontText: 11, fontW: .medium)
+    lazy var priorityNoteLabel: UILabel = AddLabel(fontText: 12, fontW: .medium)
     lazy var priorityIconImage: UIImageView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.image = UIImage(systemName: "flag")
+        $0.contentMode = .scaleAspectFit
         $0.heightAnchor.constraint(equalToConstant: 14).isActive = true
         $0.widthAnchor.constraint(equalToConstant: 14).isActive = true
+        $0.setContentHuggingPriority(.required, for: .horizontal)
+        $0.setContentCompressionResistancePriority(.required, for: .horizontal)
+        return $0
+    }(UIImageView())
+    // MARK: - StackView c отображением напоминания указанного времени
+    lazy var dueDateStackView: UIStackView = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.addArrangesViews(dateIconImage,dateLabel)
+        $0.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        $0.alignment = .center
+        $0.axis = .horizontal
+        $0.spacing = 4
+        $0.distribution = .fill
+        return $0
+    }(UIStackView())
+    
+    lazy var dateLabel: UILabel = AddLabel(fontText: 12, fontW: .medium, colorText: .colorDescriptionLabel)
+    lazy var dateIconImage: UIImageView = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.image = UIImage(systemName: "calendar")
+        $0.contentMode = .scaleAspectFit
+        $0.heightAnchor.constraint(equalToConstant: 14).isActive = true
+        $0.widthAnchor.constraint(equalToConstant: 14).isActive = true
+        $0.tintColor = .colorDescriptionLabel
+        $0.setContentHuggingPriority(.required, for: .horizontal)
+        $0.setContentCompressionResistancePriority(.required, for: .horizontal)
         return $0
     }(UIImageView())
     
@@ -77,12 +102,14 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
    
    func setupElements() {
         contentView.addSubview(addView)
-        addView.addSubViews(nameNote,detailsNote,checkBox,deleteNote,priorityStackView)
+        addView.addSubViews(nameNote,detailsNote,checkBox,deleteNote,priorityStackView,dueDateStackView)
        contentView.backgroundColor = .colorBackgroundView
-       nameNote.numberOfLines = 0          // или 2
+       nameNote.numberOfLines = 0
        nameNote.lineBreakMode = .byWordWrapping
        detailsNote.numberOfLines = 2
        detailsNote.lineBreakMode = .byTruncatingTail
+       dateLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+       priorityNoteLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
     }
     
   func setupConstraints() {
@@ -106,8 +133,12 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
             detailsNote.leadingAnchor.constraint(equalTo: nameNote.leadingAnchor),
             detailsNote.trailingAnchor.constraint(equalTo: nameNote.trailingAnchor),
 
+            dueDateStackView.topAnchor.constraint(equalTo: priorityStackView.topAnchor),
+            dueDateStackView.leadingAnchor.constraint(equalTo: nameNote.leadingAnchor),
+            dueDateStackView.bottomAnchor.constraint(equalTo: priorityStackView.bottomAnchor),
+
             priorityStackView.topAnchor.constraint(equalTo: detailsNote.bottomAnchor, constant: 10),
-            priorityStackView.trailingAnchor.constraint(equalTo: nameNote.trailingAnchor),
+            priorityStackView.leadingAnchor.constraint(equalTo: dueDateStackView.trailingAnchor, constant: 25),
             priorityStackView.bottomAnchor.constraint(equalTo: addView.bottomAnchor, constant: -16),
 
         ])
@@ -122,6 +153,12 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
         priorityNoteLabel.text = priority.title
         priorityNoteLabel.textColor = priority.color
         updateCheckBox(isCompleted: note.execution)
+        if let date = note.dueDate {
+            dateLabel.text = date.formatForNoteCell()
+            dateLabel.isHidden = false
+        } else{
+            dateLabel.text = "Не выбрано"
+        }
 
     }
     

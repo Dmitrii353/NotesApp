@@ -59,8 +59,7 @@ class ListNotePresenter: ListNotePresenterProtocol {
         noteViewModel = notes.map { note in
             NoteViewModel(id: note.id,
                           name: note.name,
-                          details: note.details,
-                          image: note.photo)
+                          details: note.details)
         }
     }
     
@@ -69,15 +68,16 @@ class ListNotePresenter: ListNotePresenterProtocol {
             view?.showError(message: "Ошибка удаления заметки")
             return
         }
+
+        NotificationService.shared.cancel(noteId: id)
         coreManager.deleteNote(note: note)
         coreManager.saveContext()
-        
         buildViewModel()
         updateNotes()
     }
     
     func installElementDateCreationTask() -> String {
-        guard let date = tasks?.date?.formatDateForListNoteView() else { return "нет даты" }
+        guard let date = tasks?.date?.formatDateForCell() else { return "нет даты" }
         return date
     }
     
@@ -131,8 +131,10 @@ class ListNotePresenter: ListNotePresenterProtocol {
               let note = notes.first(where: { $0.id == id }) else { return }
         note.execution.toggle()
         coreManager.saveContext()
+        if note.execution {
+            NotificationService.shared.cancel(noteId: id)
+        }
         updateNotes() // пересобирает activeNotes / completedNotes
-        view?.reloadData()
     }
     
     func sortingNotesByPriority() {

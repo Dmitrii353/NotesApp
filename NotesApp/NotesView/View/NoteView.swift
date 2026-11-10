@@ -105,6 +105,7 @@ class NoteView: UIViewController, NoteViewProtocol {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .colorBackgroundView
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         contentView.addSubViews(categoryIconContainerView,
@@ -116,7 +117,6 @@ class NoteView: UIViewController, NoteViewProtocol {
                                              countOfCompletedNotes,
                                              progressViewOfCompletedNotes,
                                              backgroundViewPrecentOfCompleted)
-        view.backgroundColor = .colorBackgroundView
         installingNavigationBarItemsButtons()
         setupElementscategoryTasks()
         setupConstraints()
@@ -174,8 +174,7 @@ class NoteView: UIViewController, NoteViewProtocol {
         
     @objc
     func addNote(){
-        let Addnote = AddNoteView()
-        Addnote.tasks = presenter.tasks
+        let Addnote = Builder.createAddnoteView(tasks: presenter.tasks)
         navigationController?.pushViewController(Addnote, animated: true)
     }
     
@@ -243,7 +242,7 @@ class NoteView: UIViewController, NoteViewProtocol {
             countOfCompletedNotes.topAnchor.constraint(equalTo: descriptionTextLabel.bottomAnchor, constant: 2),
             countOfCompletedNotes.leadingAnchor.constraint(equalTo: descriptionTextLabel.leadingAnchor),
             countOfCompletedNotes.heightAnchor.constraint(equalToConstant: 28),
-            countOfCompletedNotes.widthAnchor.constraint(equalToConstant: 175),
+            countOfCompletedNotes.trailingAnchor.constraint(equalTo: backgroundViewPrecentOfCompleted.leadingAnchor, constant: 30),
             
             progressViewOfCompletedNotes.topAnchor.constraint(equalTo: countOfCompletedNotes.bottomAnchor, constant: 12),
             progressViewOfCompletedNotes.leadingAnchor.constraint(equalTo: progressCardCategoryView.leadingAnchor, constant: 25),

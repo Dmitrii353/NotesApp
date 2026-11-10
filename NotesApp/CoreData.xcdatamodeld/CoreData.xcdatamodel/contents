@@ -2,10 +2,10 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="25436" systemVersion="26B123" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
     <entity name="Note" representedClassName="Note" syncable="YES">
         <attribute name="details" optional="YES" attributeType="String"/>
+        <attribute name="dueDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="execution" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="id" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
-        <attribute name="photo" optional="YES" attributeType="String"/>
         <attribute name="priority" optional="YES" attributeType="String"/>
         <relationship name="tasks" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Tasks" inverseName="notes" inverseEntity="Tasks"/>
     </entity>

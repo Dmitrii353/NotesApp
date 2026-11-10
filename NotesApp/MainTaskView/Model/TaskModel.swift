@@ -19,7 +19,7 @@ struct TaskModel {
                   TaskModel(phrases: "Ещё немного усилий — и всё сделано"),
                   TaskModel(phrases: "Последний рывок — и всё закрыто"),
                   TaskModel(phrases: "Финишная прямая — ещё немного"),
-                  TaskModel(phrases: "Почти у цели,Осталось чуть-чуть")
+                  TaskModel(phrases: "Почти у цели,осталось чуть-чуть")
         ]
     }
 }

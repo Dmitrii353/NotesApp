@@ -13,7 +13,7 @@ class TabBarView: UITabBarController {
         super.viewDidLoad()
         setupTabBar()
         tabBar.tintColor = .colorButton
-        tabBar.backgroundColor = .colorTabBar
+        tabBar.backgroundColor = .clear
     }
     
     private func setupTabBar() {
