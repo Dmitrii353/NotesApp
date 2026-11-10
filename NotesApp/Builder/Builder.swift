@@ -41,4 +41,11 @@ class Builder {
         return navigation
     }
     
+    static func createAddnoteView(tasks: Tasks?) -> UIViewController {
+        let view = AddNoteView()
+        let presenter = AddNotePresenter(view: view, tasks: tasks)
+        view.presenter = presenter
+        return view
+    }
+    
 }

@@ -11,5 +11,5 @@ struct NoteViewModel {
     let id: String?
     let name: String?
     let details: String?
-    let image: String?
+
 }

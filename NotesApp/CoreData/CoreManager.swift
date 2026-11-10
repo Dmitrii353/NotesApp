@@ -56,17 +56,22 @@ class CoreManager {
     }
     
     // createNote
-    func createNote(task: Tasks?, name: String,image: String, details: String, priority: NotePriority = .medium) {
+    func createNote(task: Tasks?, name: String, details: String, priority: NotePriority = .medium, dueDate: Date? = nil) {
         guard let task else { return }
         let note = Note(context: persistentContainer.viewContext)
         note.name = name
-        note.photo = image
         note.details = details
         note.id = UUID().uuidString
         note.tasks = task
         note.priority = priority.rawValue
+        note.dueDate = dueDate
+    
         saveContext()
         getFolder()
+        
+        if let dueDate, let id = note.id {
+            NotificationService.shared.schedule(noteId: id, title: name, body: details, date: dueDate)
+        }
     }
     
     func deleteNote(note: Note) {

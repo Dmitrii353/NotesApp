@@ -54,6 +54,9 @@ class MainTaskPresenter: MainTaskPresenterProtocol {
         guard let note = notes.first(where: {$0.id == id}) else { return }
         note.execution.toggle()
         coreManager.saveContext()
+        if note.execution {
+            NotificationService.shared.cancel(noteId: id)
+        }
         updateUpcomingNotes()
         view?.reloadData()
     }
