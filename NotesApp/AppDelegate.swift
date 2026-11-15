@@ -14,6 +14,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         Thread.sleep(forTimeInterval: 3)
+        UNUserNotificationCenter.current().setBadgeCount(0)
+        NotificationService.shared.configure()
+        UNUserNotificationCenter.current().delegate = self
         return true
     }
 
@@ -34,3 +37,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
+extension AppDelegate: UNUserNotificationCenterDelegate {
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner,.sound])
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        print(response.actionIdentifier)
+        let noteId = response.notification.request.identifier
+        let content = response.notification.request.content
+        switch response.actionIdentifier {
+        case "COMPLETE_NOTE" :
+            CoreManager.shared.markNoteCompleted(id: noteId)
+            NotificationService.shared.cancel(noteId: noteId)
+        case "SNOOZE_10" :
+            NotificationService.shared.snooze(userId: noteId, title: content.title, body: content.body, minutes: 10)
+        default:
+            break
+        }
+        completionHandler()
+    }
+}

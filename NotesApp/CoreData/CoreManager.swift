@@ -96,21 +96,15 @@ class CoreManager {
         return url
     }
     
-//    func saveFile(file: Data, imageName: String) {
-//        let path = path()
-//        let photoURL = path.appending(path: "photo/avatar")
-//        try? FileManager.default.createDirectory(at: photoURL, withIntermediateDirectories: true)
-//        let imageUrl = photoURL.appending(path: imageName)
-//        try? file.write(to: imageUrl)
-//        print(imageUrl)
-//    }
-//    
-//    func readFile(imageName: String) -> Data? {
-//        let path = path().appending(path: "photo/avatar/\(imageName)")
-//        let data = try? Data(contentsOf: path)
-//        print(path)
-//        return data
-//    }
+    func markNoteCompleted(id: String) {
+        let request: NSFetchRequest<Note> = Note.fetchRequest()
+        
+        request.predicate = NSPredicate(format: "id == %@", id)
+        
+        guard let note = try? persistentContainer.viewContext.fetch(request).first else { return }
+        note.execution = true
+        saveContext()
+    }
 }
 
 

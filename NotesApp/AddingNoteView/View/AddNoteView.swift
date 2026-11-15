@@ -181,7 +181,12 @@ class AddNoteView: UIViewController,AddNoteViewProtocol {
         }
         let dueDate: Date? = reminderSwitch.isOn ? datePicker.date : nil
         presenter.createNewNote(title: name, details: details, dueDate: dueDate)
-            navigationController?.popViewController(animated: true)
+        let success = UIAlertController(title: nil, message: "Заметка успешно создана", preferredStyle: .actionSheet)
+        present(success, animated: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            success.dismiss(animated: true)
+        }
+        navigationController?.popViewController(animated: true)
         }
     
     override func viewDidLoad() {

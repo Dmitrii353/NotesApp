@@ -49,12 +49,12 @@ class CustomCellNoteMainView: UITableViewCell, SetupNewCell {
     lazy var dateNotesLabel: UILabel = AddLabel(fontText: 12, fontW: .medium, colorText: .colorDescriptionLabel)
     lazy var descriptionNoteStackView: UIStackView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
-        $0.axis = .horizontal
-        $0.distribution = .fillProportionally
-        $0.alignment = .leading
-        $0.heightAnchor.constraint(equalToConstant: 16).isActive = true
-        $0.widthAnchor.constraint(equalToConstant: 160).isActive = true
         $0.addArrangesViews(categoryNotesLabel,dateNotesLabel)
+        $0.heightAnchor.constraint(equalToConstant: 16).isActive = true
+        $0.alignment = .center
+        $0.axis = .horizontal
+        $0.spacing = 4
+        $0.distribution = .fill
         return $0
     }(UIStackView())
     lazy var noteIsCompleted: UIButton = {
@@ -83,8 +83,12 @@ class CustomCellNoteMainView: UITableViewCell, SetupNewCell {
         categoryNotesLabel.text = categoryName
         noteId = note.id
         updateCheckBox(is: note.execution)
-        if let date = note.tasks?.date {
-            dateNotesLabel.text = date.formatDateForCell()
+        dateNotesLabel.setContentHuggingPriority(.required, for: .horizontal)
+        dateNotesLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        categoryNotesLabel.setContentHuggingPriority(.required, for: .horizontal)
+        categoryNotesLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        if let date = note.dueDate {
+            dateNotesLabel.text = "· \(date.formatForNoteCell())"
         } else {
             dateNotesLabel.text = "· без даты"
         }

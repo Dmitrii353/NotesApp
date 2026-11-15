@@ -9,7 +9,7 @@ import UIKit
 
 struct CategoryTask {
  
-    static let allCategories: [String] = [ "Работа","Учёба","Продукты","Личное","Здоровье","Покупки","Хобби","Цели","Дом","Другое","Идеи"]
+    static let allCategories: [String] = [ "Работа","Учёба","Продукты","Личное","Здоровье","Покупки","Хобби","Цели","Дом","Идеи","Другое"]
     
     
     static func icon(for nameCategory: String) -> String {
