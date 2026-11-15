@@ -21,7 +21,7 @@ final class NotificationService: NotificationServiceProtocol {
     
     func requestPermission(completion: @escaping (Bool) -> Void) {
         UNUserNotificationCenter.current()
-            .requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+            .requestAuthorization(options: [.alert, .sound]) { granted, _ in
                 DispatchQueue.main.async {
                     completion(granted)
                 }
@@ -35,7 +35,7 @@ final class NotificationService: NotificationServiceProtocol {
         content.title = title
         content.body = body.isEmpty ? "Пора выполнить задачу" : body
         content.sound = .default
-        
+        content.categoryIdentifier = "NOTE_REMINDER"
         let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: date)
         
         let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
@@ -50,5 +50,17 @@ final class NotificationService: NotificationServiceProtocol {
             .removePendingNotificationRequests(withIdentifiers: [noteId])
     }
     
+    func configure() {
+        let center = UNUserNotificationCenter.current()
+        let complete = UNNotificationAction(identifier: "COMPLETE_NOTE", title: "Задача выполнена", options: [],icon: .init(systemImageName: "checkmark"))
+        let snooze = UNNotificationAction(identifier: "SNOOZE_10", title: "Напомнить позже", options: [], icon: .init(systemImageName: "clock"))
+        let category = UNNotificationCategory(identifier: "NOTE_REMINDER", actions: [complete,snooze], intentIdentifiers: [])
+        center.setNotificationCategories([category])
+    }
     
+    func snooze(userId: String, title: String, body:String, minutes: Int) {
+        NotificationService.shared.cancel(noteId: userId)
+        let newDate = Date().addingTimeInterval(TimeInterval(minutes * 60))
+        schedule(noteId: userId, title: title, body: body, date: newDate)
+    }
 }

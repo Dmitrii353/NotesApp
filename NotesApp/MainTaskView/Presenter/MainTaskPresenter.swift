@@ -92,7 +92,7 @@ class MainTaskPresenter: MainTaskPresenterProtocol {
             return !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
         .filter{!$0.execution}
-        .sorted {($0.tasks?.date ?? Date.distantPast) > ($1.tasks?.date ?? Date.distantPast)}
+        .sorted {($0.dueDate ?? Date.distantPast) > ($1.dueDate ?? Date.distantPast)}
         .prefix(5)
         .map{$0}
         

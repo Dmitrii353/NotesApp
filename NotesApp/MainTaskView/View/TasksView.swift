@@ -158,6 +158,7 @@ final class TasksView: UIViewController, TaskViewProtocol {
     }(UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout()))
     
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         self.mainTaskPresenter.updateCollectionCoreManager()
         
     }

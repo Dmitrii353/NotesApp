@@ -147,12 +147,22 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
     func configure(note: Note) {
         let priority = NotePriority.from(note.priority)
         noteId = note.id
-        nameNote.text = note.name
         detailsNote.text = note.details
         priorityIconImage.tintColor = priority.color
         priorityNoteLabel.text = priority.title
         priorityNoteLabel.textColor = priority.color
+        if note.execution {
+            let attributed = NSAttributedString(string: note.name ?? "", attributes: [
+                .strikethroughStyle: NSUnderlineStyle.single.rawValue,
+                .foregroundColor: UIColor.secondaryLabel
+            ])
+            nameNote.attributedText = attributed
+        } else {
+            nameNote.attributedText = nil
+            nameNote.text = note.name
+        }
         updateCheckBox(isCompleted: note.execution)
+
         if let date = note.dueDate {
             dateLabel.text = date.formatForNoteCell()
             dateLabel.isHidden = false
