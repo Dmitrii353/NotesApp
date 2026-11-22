@@ -11,7 +11,7 @@ protocol MainTaskPresenterProtocol: AnyObject  {
     var tasks : [Tasks] { get }
     func updateCollectionCoreManager()
     func createNewTaskCoreManager(_ category: String)
-    func deleteTask(with id: String)
+    func deleteTask(with id: String, category: String)
     func generatingMotivationPhrases() -> String
     func countOfCompletedTasks() -> String
     func countProgressAllNotes() -> Float
@@ -20,7 +20,6 @@ protocol MainTaskPresenterProtocol: AnyObject  {
 }
 
 class MainTaskPresenter: MainTaskPresenterProtocol {
-    
     weak var view: TaskViewProtocol?
     var tasks : [Tasks] = []
     var notes: [Note] = []
@@ -36,11 +35,12 @@ class MainTaskPresenter: MainTaskPresenterProtocol {
         view?.createNewTask("Задача \(category) создана")
     }
     
-    func deleteTask(with id: String) {
+    func deleteTask(with id: String, category: String) {
         if let taskToDelete = tasks.first(where: {$0.id == id }) {
             coreManager.deleteTask(task: taskToDelete)
         }
         updateCollectionCoreManager()
+        view?.deleteTaskCategory(category: "Категория \(category) удалена")
     }
     
     func updateCollectionCoreManager() {
@@ -95,8 +95,6 @@ class MainTaskPresenter: MainTaskPresenterProtocol {
         .sorted {($0.dueDate ?? Date.distantPast) > ($1.dueDate ?? Date.distantPast)}
         .prefix(5)
         .map{$0}
-        
     }
-    
 }
 

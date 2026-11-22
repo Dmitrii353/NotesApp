@@ -68,7 +68,7 @@ class ListNotePresenter: ListNotePresenterProtocol {
             view?.showError(message: "Ошибка удаления заметки")
             return
         }
-
+        
         NotificationService.shared.cancel(noteId: id)
         coreManager.deleteNote(note: note)
         coreManager.saveContext()

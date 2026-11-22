@@ -10,6 +10,7 @@ import UIKit
 protocol TaskViewProtocol: AnyObject {
     func reloadData()
     func createNewTask(_ category: String)
+    func deleteTaskCategory(category: String)
 }
 
 final class TasksView: UIViewController, TaskViewProtocol {
@@ -47,9 +48,25 @@ final class TasksView: UIViewController, TaskViewProtocol {
         $0.textAlignment = .center
         return $0
     }(UILabel())
-    lazy var allCategoriesButton: UIButton = AddButton(text: "Изменить")
-    lazy var categoriesStack: UIStackView = AddUIStackView(height: 28)
+    lazy var allCategoriesButton: UIButton = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.setTitleColor(.colorButton, for: .normal)
+        $0.setTitle("Изменить", for: .normal)
+        $0.addTarget(self, action: #selector(showButtonDeleteTask), for: .touchUpInside)
+        return $0
+    }(UIButton())
     
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+        allCategoriesButton.setTitle(editing ? "Готово" : "Изменить", for: .normal)
+        taskCollectionView.reloadData()
+    }
+    
+    @objc func showButtonDeleteTask() {
+        setEditing(!isEditing, animated: true)
+    }
+    
+    lazy var categoriesStack: UIStackView = AddUIStackView(height: 28)
     lazy var upcomingAffairsLabel: UILabel = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.text = "Ближайшие дела"
@@ -58,8 +75,20 @@ final class TasksView: UIViewController, TaskViewProtocol {
         $0.textAlignment = .center
         return $0
     }(UILabel())
-    lazy var showAllUpComingAffairsButton: UIButton = AddButton(text: "Все")
+    lazy var showAllUpComingAffairsButton: UIButton = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.setTitle("Все", for: .normal)
+        $0.setTitleColor(.colorButton, for: .normal)
+        $0.addTarget(self, action: #selector(pushToAllNotesView), for: .touchUpInside)
+        return $0
+    }(UIButton())
+    
     lazy var upComingAffairsStack: UIStackView = AddUIStackView(height: 28)
+    
+    @objc func pushToAllNotesView() {
+        let allNotes = Builder.createAllNotesView()
+        present(allNotes, animated: true)
+    }
     
     // MARK: Карточка прогресса
     lazy var progressCardView: UIView = {
@@ -160,7 +189,6 @@ final class TasksView: UIViewController, TaskViewProtocol {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.mainTaskPresenter.updateCollectionCoreManager()
-        
     }
     
     override func viewDidLoad() {
@@ -235,6 +263,16 @@ final class TasksView: UIViewController, TaskViewProtocol {
         present(alert,animated: true)
     }
     
+    private func confirmDeleteTask(with id: String, category: String) {
+        let alert = UIAlertController(title: "Удалить категорию?", message: "Все заметки внутри категории удалятся", preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Удалить", style: .destructive, handler: { [weak self] _ in
+            self?.mainTaskPresenter.deleteTask(with: id, category: category)
+        }))
+        present(alert, animated: true)
+    }
+    
     func createNewTask(_ category: String) {
         let success = UIAlertController(title: nil, message: category, preferredStyle: .alert)
         present(success, animated: true)
@@ -243,6 +281,13 @@ final class TasksView: UIViewController, TaskViewProtocol {
         }
     }
     
+    func deleteTaskCategory(category: String) {
+        let success = UIAlertController(title: nil, message: category, preferredStyle: .alert)
+        present(success, animated: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            success.dismiss(animated: true)
+        }
+    }
     
     
     private func setupConstraints(){
@@ -318,13 +363,15 @@ extension TasksView: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = taskCollectionView.dequeueReusableCell(withReuseIdentifier: CustomCellTasks.reuseId, for: indexPath) as! CustomCellTasks
         let task = mainTaskPresenter.tasks[indexPath.item]
-        cell.setupCell(tasks: task)
+        cell.setupCell(tasks: task, isEditing: isEditing)
+        cell.setEditingMode(visible: isEditing)
         cell.onDelete = {[weak self] id in
-            self?.mainTaskPresenter.deleteTask(with: id)
+            self?.confirmDeleteTask(with: id, category: task.name ?? "")
         }
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard !isEditing else { return }
         let task = mainTaskPresenter.tasks[indexPath.item]
         let noteView = Builder.createNoteView(tasks: task)
         navigationController?.pushViewController(noteView, animated: true)
