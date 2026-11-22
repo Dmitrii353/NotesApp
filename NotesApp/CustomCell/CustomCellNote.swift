@@ -186,8 +186,10 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
    
     private func updateCheckBox(isCompleted: Bool) {
         let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .medium)
-        let imageName = isCompleted ? "checkmark.circle.fill" : "circle"
+        let imageName = isCompleted ? "checkmark.square.fill" : "square"
+        let color = isCompleted ? UIColor.colorCheckCircleNote : UIColor.colorButton
         checkBox.setImage(UIImage(systemName: imageName, withConfiguration: config), for: .normal)
+        checkBox.tintColor = color
     }
     
     required init?(coder: NSCoder) {

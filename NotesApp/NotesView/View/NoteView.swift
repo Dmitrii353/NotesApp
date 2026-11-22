@@ -81,7 +81,7 @@ class NoteView: UIViewController, NoteViewProtocol {
         $0.widthAnchor.constraint(equalToConstant: 50).isActive = true
         $0.layer.cornerRadius = 12
         $0.addSubview(precentOfCompletedNotesLabel)
-
+        
         return $0
     }(UIView())
     
@@ -149,7 +149,7 @@ class NoteView: UIViewController, NoteViewProtocol {
         backgroundViewPrecentOfCompleted.backgroundColor = CategoryTask.color(for: task.name ?? "")
         precentOfCompletedNotesLabel.text = "\(task.progressInt)%"
         precentOfCompletedNotesLabel.textColor = CategoryTask.colorIcon(for: task.name ?? "")
-
+        
     }
     
     private func updateTableHeight() {
@@ -172,7 +172,7 @@ class NoteView: UIViewController, NoteViewProtocol {
             categorySubtitleLabel.text = "Создана \(presenter.installElementDateCreationTask()) · \(presenter.installCountNotes())"
         }
     }
-        
+    
     @objc
     func addNote(){
         let Addnote = Builder.createAddnoteView(tasks: presenter.tasks)
@@ -330,13 +330,13 @@ extension NoteView: UITableViewDelegate,UITableViewDataSource {
         let note = indexPath.section == 0 ? presenter.activeNotes[indexPath.row]: presenter.completedNote[indexPath.row]
         let oneNote = OneNoteView()
         
-            oneNote.titleNote.text = note.name
-            oneNote.detailsNote.text = note.details
-            oneNote.tasks = presenter.tasks
+        oneNote.titleNote.text = note.name
+        oneNote.detailsNote.text = note.details
+        oneNote.tasks = presenter.tasks
         navigationController?.pushViewController(oneNote, animated: true)
-
-        }
+        
     }
-    
+}
+
 
 

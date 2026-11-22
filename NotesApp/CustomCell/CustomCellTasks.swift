@@ -11,6 +11,7 @@ class CustomCellTasks: UICollectionViewCell, SetupNewCell {
     static var reuseId: String = "CustomCellTasks"
     var onDelete: ((String) -> Void)?
     private var taskId: String?
+    private let shakeKey: String = "categoryShake"
     
     lazy var addView: UIView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
@@ -68,7 +69,10 @@ class CustomCellTasks: UICollectionViewCell, SetupNewCell {
         $0.heightAnchor.constraint(equalToConstant: 40).isActive = true
         $0.axis = .horizontal
         $0.alignment = .center
-        $0.distribution = .equalSpacing
+        $0.setContentHuggingPriority(.required, for: .horizontal)
+        $0.setContentCompressionResistancePriority(.required, for: .horizontal)
+        $0.distribution = .fill
+        $0.spacing = 80
         $0.addArrangesViews(iconContainerCategoryImage, deleteTask)
         return $0
     }(UIStackView())
@@ -92,6 +96,7 @@ class CustomCellTasks: UICollectionViewCell, SetupNewCell {
     func setupElements() {
         contentView.addSubview(addView)
         addView.addSubViews(nameTask,countNote,calendarSystemImage,datetask,categoryImageAndSettingsButton,progressTaskView)
+
     }
     
     @objc
@@ -100,7 +105,28 @@ class CustomCellTasks: UICollectionViewCell, SetupNewCell {
         onDelete?(id)
     }
     
-    func setupCell(tasks: Tasks) {
+   private func setDeleteVisible(_ visible: Bool) {
+        deleteTask.isHidden = !visible
+
+    }
+    
+    func setEditingMode(visible: Bool) {
+        setDeleteVisible(visible)
+        
+        if visible {
+            startShake()
+        } else {
+            stopShake()
+        }
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        stopShake()
+        deleteTask.isHidden = true
+    }
+    
+    func setupCell(tasks: Tasks, isEditing: Bool) {
         taskId = tasks.id
         nameTask.text = tasks.name
         countNote.text = tasks.progressText
@@ -115,6 +141,7 @@ class CustomCellTasks: UICollectionViewCell, SetupNewCell {
         iconContainerCategoryImage.backgroundColor = CategoryTask.color(for: tasks.name ?? "")
         categoryTaskImage.tintColor = CategoryTask.colorIcon(for: tasks.name ?? "")
         progressTaskView.progressTintColor = CategoryTask.colorIcon(for: tasks.name ?? "")
+        setDeleteVisible(isEditing)
     }
     
     func setupConstraints() {
@@ -134,7 +161,6 @@ class CustomCellTasks: UICollectionViewCell, SetupNewCell {
             
             categoryImageAndSettingsButton.topAnchor.constraint(equalTo: addView.topAnchor, constant: 20),
             categoryImageAndSettingsButton.leadingAnchor.constraint(equalTo: addView.leadingAnchor, constant: 16),
-            categoryImageAndSettingsButton.trailingAnchor.constraint(equalTo: addView.trailingAnchor, constant: -16),
 
             calendarSystemImage.leadingAnchor.constraint(equalTo: addView.leadingAnchor, constant: 16),
             calendarSystemImage.bottomAnchor.constraint(equalTo: datetask.bottomAnchor),
@@ -152,6 +178,24 @@ class CustomCellTasks: UICollectionViewCell, SetupNewCell {
             progressTaskView.trailingAnchor.constraint(equalTo: nameTask.trailingAnchor, constant: -5)
             
         ])
+    }
+    
+    //MARK: - анимация "тряски" при нажатии кнопки изменить
+    
+    private func startShake() {
+        guard addView.layer.animation(forKey: shakeKey) == nil else { return }
+        
+        let anim = CAKeyframeAnimation(keyPath: "transform.rotation.z")
+        anim.values = [-0.04, 0.04, -0.04]
+        anim.duration = 0.25
+        anim.repeatCount = .infinity
+        anim.isRemovedOnCompletion = false
+        addView.layer.add(anim, forKey: shakeKey)
+    }
+    
+    private func stopShake() {
+        addView.layer.removeAnimation(forKey: shakeKey)
+        addView.transform = .identity
     }
     
     required init?(coder: NSCoder) {
