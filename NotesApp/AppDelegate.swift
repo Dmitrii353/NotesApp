@@ -13,7 +13,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        Thread.sleep(forTimeInterval: 3)
         UNUserNotificationCenter.current().setBadgeCount(0)
         NotificationService.shared.configure()
         UNUserNotificationCenter.current().delegate = self

@@ -10,10 +10,10 @@ import UIKit
 
 
  final class CustomAllNotesCell: UITableViewCell {
-    
+     private var isCompleted: Bool = false
     static let reuseId: String = "CustomAllNotesCell"
     private var noteId: String?
-     var onToggle: ((String) -> Void)?
+     var onToggle: ((String, Bool) -> Void)?
     
    private lazy var addView: UIView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
@@ -86,6 +86,7 @@ import UIKit
     
     func configurate(note: Note) {
         let priority = NotePriority.from(note.priority)
+        isCompleted = note.execution
         noteId = note.id
         categoryView.backgroundColor = CategoryTask.color(for: note.tasks?.name ?? "")
         imageCategoryView.tintColor = CategoryTask.colorIcon(for: note.tasks?.name ?? "")
@@ -124,8 +125,9 @@ import UIKit
     
     @objc
      func buttonToggle() {
+         let isCompletedNotes = !isCompleted
         guard let id = noteId else { return }
-        onToggle?(id)
+        onToggle?(id, isCompletedNotes)
     }
     
    private func setupElements() {

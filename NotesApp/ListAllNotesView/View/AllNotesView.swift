@@ -4,7 +4,7 @@
 //
 //  Created by Дима Люфт on 21.10.2026.
 //
-
+import SwiftConfettiView
 import UIKit
 
 protocol AllNotesViewProtocol: AnyObject {
@@ -59,6 +59,18 @@ final class AllNotesView: UIViewController, AllNotesViewProtocol {
         return $0
     }(UITableView(frame: .zero, style: .plain))
     
+    private lazy var confettiView: SwiftConfettiView = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.emissionAngle = 4 * .pi / 2
+        $0.burstCount = 150
+        $0.hapticFeedback = true
+        $0.density = 1.5
+        $0.intensity = 2
+        $0.isUserInteractionEnabled = false
+        $0.spread = 180
+        return $0
+    }(SwiftConfettiView())
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         presenter.updateAllNotes()
@@ -72,7 +84,7 @@ final class AllNotesView: UIViewController, AllNotesViewProtocol {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .colorBackgroundView
-        view.addSubViews(searchNotesBar,noteSectionCollectionView,allNotesTableView)
+        view.addSubViews(searchNotesBar,noteSectionCollectionView,allNotesTableView,confettiView)
         title = "Все заметки"
         navigationController?.navigationBar.prefersLargeTitles = true
         installNavigationBarItemSortedButton()
@@ -101,6 +113,11 @@ final class AllNotesView: UIViewController, AllNotesViewProtocol {
             noteSectionCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             noteSectionCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             noteSectionCollectionView.heightAnchor.constraint(equalToConstant: 36),
+            
+            confettiView.topAnchor.constraint(equalTo: view.topAnchor,constant: 350),
+            confettiView.leadingAnchor.constraint(equalTo: view.leadingAnchor,constant: 150),
+            confettiView.trailingAnchor.constraint(equalTo: view.trailingAnchor,constant: -150),
+            confettiView.bottomAnchor.constraint(equalTo: view.bottomAnchor,constant: -350),
             
             allNotesTableView.topAnchor.constraint(equalTo: noteSectionCollectionView.bottomAnchor, constant: 24),
             allNotesTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -156,8 +173,11 @@ extension AllNotesView: UITableViewDelegate, UITableViewDataSource {
         
         let item = presenter.displayedNotes[indexPath.row]
         cell.configurate(note: item)
-        cell.onToggle = { [weak self] id in
-            self?.presenter.toggleNote(with: id)
+        cell.onToggle = { [weak self] id, isCompletedNotes in
+            self?.presenter.toggleNote(with: id, isCompletedNotes: isCompletedNotes)
+            if isCompletedNotes == true {
+                self?.confettiView.startConfetti()
+            }
         }
         return cell
     }

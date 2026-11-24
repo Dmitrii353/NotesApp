@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		321F71EB30B49D2500D8B241 /* SwiftConfettiView in Frameworks */ = {isa = PBXBuildFile; productRef = 321F71EA30B49D2500D8B241 /* SwiftConfettiView */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		3214A3092CC00AC400AEA531 /* NotesApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NotesApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				321F71EB30B49D2500D8B241 /* SwiftConfettiView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 			);
 			name = NotesApp;
 			packageProductDependencies = (
+				321F71EA30B49D2500D8B241 /* SwiftConfettiView */,
 			);
 			productName = "m3#8";
 			productReference = 3214A3092CC00AC400AEA531 /* NotesApp.app */;
@@ -107,6 +113,9 @@
 			);
 			mainGroup = 3214A3002CC00AC400AEA531;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				321F71E930B49D2500D8B241 /* XCRemoteSwiftPackageReference "SwiftConfettiView" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3214A30A2CC00AC400AEA531 /* Products */;
 			projectDirPath = "";
@@ -335,6 +344,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		321F71E930B49D2500D8B241 /* XCRemoteSwiftPackageReference "SwiftConfettiView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ugurethemaydin/SwiftConfettiView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		321F71EA30B49D2500D8B241 /* SwiftConfettiView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 321F71E930B49D2500D8B241 /* XCRemoteSwiftPackageReference "SwiftConfettiView" */;
+			productName = SwiftConfettiView;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3214A3012CC00AC400AEA531 /* Project object */;
 }

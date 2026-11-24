@@ -4,7 +4,7 @@
 //
 //  Created by Дима Люфт on 16.10.2024.
 //
-
+import SwiftConfettiView
 import UIKit
 
 protocol NoteViewProtocol: AnyObject {
@@ -61,7 +61,6 @@ class NoteView: UIViewController, NoteViewProtocol {
         $0.layer.shadowOffset = CGSize(width: 0, height: 1)
         $0.layer.shadowOpacity = 0.08
         $0.layer.shadowRadius = 4
-        //$0.layer.cornerRadius = 50 - один из возможных вариантов оформления карточки прогресса
         return $0
     }(UIView())
     
@@ -81,9 +80,20 @@ class NoteView: UIViewController, NoteViewProtocol {
         $0.widthAnchor.constraint(equalToConstant: 50).isActive = true
         $0.layer.cornerRadius = 12
         $0.addSubview(precentOfCompletedNotesLabel)
-        
         return $0
     }(UIView())
+    
+    private lazy var confettiView: SwiftConfettiView = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.emissionAngle = 4 * .pi / 2
+        $0.burstCount = 150
+        $0.hapticFeedback = true
+        $0.density = 1.5
+        $0.intensity = 2
+        $0.isUserInteractionEnabled = false
+        $0.spread = 180
+        return $0
+    }(SwiftConfettiView())
     
     lazy var precentOfCompletedNotesLabel: UILabel = AddLabel(fontText: 12, fontW: .bold, textAlignmentLabel: .center)
     // MARK: - Таблица с заметками
@@ -113,7 +123,7 @@ class NoteView: UIViewController, NoteViewProtocol {
                                 categoryTitleLabel,
                                 categorySubtitleLabel,
                                 progressCardCategoryView,
-                                noteTableView)
+                                noteTableView,confettiView)
         progressCardCategoryView.addSubViews(descriptionTextLabel,
                                              countOfCompletedNotes,
                                              progressViewOfCompletedNotes,
@@ -240,6 +250,11 @@ class NoteView: UIViewController, NoteViewProtocol {
             descriptionTextLabel.heightAnchor.constraint(equalToConstant: 16),
             descriptionTextLabel.widthAnchor.constraint(equalToConstant: 175),
             
+            confettiView.topAnchor.constraint(equalTo: contentView.topAnchor,constant: 350),
+            confettiView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor,constant: 150),
+            confettiView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor,constant: -150),
+            confettiView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            
             countOfCompletedNotes.topAnchor.constraint(equalTo: descriptionTextLabel.bottomAnchor, constant: 2),
             countOfCompletedNotes.leadingAnchor.constraint(equalTo: descriptionTextLabel.leadingAnchor),
             countOfCompletedNotes.heightAnchor.constraint(equalToConstant: 28),
@@ -317,8 +332,11 @@ extension NoteView: UITableViewDelegate,UITableViewDataSource {
         let cell = noteTableView.dequeueReusableCell(withIdentifier: CustomCellNote.reuseId, for: indexPath) as! CustomCellNote
         let note = indexPath.section == 0 ? presenter.activeNotes[indexPath.row] : presenter.completedNote[indexPath.row]
         cell.configure(note: note)
-        cell.onToggle = { [weak self] id in
-            self?.presenter.toggleNote(with: id)
+        cell.onToggle = { [weak self] id, isNowCompleted in
+            self?.presenter.toggleNote(with: id, completed: isNowCompleted)
+            if isNowCompleted == true {
+                self?.confettiView.startConfetti()
+            }
         }
         cell.onDelete = {[weak self] id in
             self?.confirmDeleteNote(with: id)

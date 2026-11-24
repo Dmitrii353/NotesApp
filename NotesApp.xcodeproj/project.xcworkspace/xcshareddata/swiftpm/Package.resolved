@@ -1,0 +1,15 @@
+{
+  "originHash" : "507367246bf8aa2d9c3f5d2955f2a369672eefef9f2319c2e1f89e53727c1b2c",
+  "pins" : [
+    {
+      "identity" : "swiftconfettiview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ugurethemaydin/SwiftConfettiView.git",
+      "state" : {
+        "revision" : "2000f281042e4e4a95a7502211eda8dc5cf6ea3a",
+        "version" : "2.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}
