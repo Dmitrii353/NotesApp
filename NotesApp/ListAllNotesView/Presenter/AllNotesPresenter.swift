@@ -14,7 +14,7 @@ protocol AllNotesPresenterProtocol: AnyObject {
     var selectedFilter: NotesFilter { get }
     var allNotes: [Note] {get set}
     var displayedNotes: [Note] {get}
-    func toggleNote(with id: String)
+    func toggleNote(with id: String, isCompletedNotes: Bool)
     func sortingNotesByPriority()
     func updateSearchText(_ text: String)
 }
@@ -92,7 +92,7 @@ final class AllNotesPresenter: AllNotesPresenterProtocol {
         view?.reloadData()
     }
     
-    func toggleNote(with id: String) {
+    func toggleNote(with id: String, isCompletedNotes: Bool) {
         guard let note = allNotes.first(where: { $0.id == id }) else { return }
         note.execution.toggle()
         coreManager.saveContext()

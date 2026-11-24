@@ -9,8 +9,9 @@ import UIKit
 
 class CustomCellNoteMainView: UITableViewCell, SetupNewCell {
     static let reuseId: String = "CustomCellNoteMainView"
+    private var isCompleted: Bool = false
     private var noteId: String?
-    var onToggle: ((String) -> Void)?
+    var onToggle: ((String,Bool) -> Void)?
     lazy var tableNoteView: UIView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.layer.cornerRadius = 30
@@ -81,6 +82,7 @@ class CustomCellNoteMainView: UITableViewCell, SetupNewCell {
         categoryNotesImage.tintColor = CategoryTask.colorIcon(for: categoryName)
         nameNotesLabel.text = note.name
         categoryNotesLabel.text = categoryName
+        isCompleted = note.execution
         noteId = note.id
         updateCheckBox(is: note.execution)
         dateNotesLabel.setContentHuggingPriority(.required, for: .horizontal)
@@ -105,8 +107,9 @@ class CustomCellNoteMainView: UITableViewCell, SetupNewCell {
     
     @objc
     func checkBoxTapped() {
+        let isCompletedNotes = !isCompleted
         guard let id = noteId else { return }
-        onToggle?(id)
+        onToggle?(id,isCompletedNotes)
     }
     
     private func updateCheckBox(is completed: Bool) {

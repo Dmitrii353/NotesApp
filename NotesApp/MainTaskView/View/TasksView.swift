@@ -4,7 +4,7 @@
 //
 //  Created by Дима Люфт on 16.10.2024.
 //
-
+import SwiftConfettiView
 import UIKit
 
 protocol TaskViewProtocol: AnyObject {
@@ -131,6 +131,19 @@ final class TasksView: UIViewController, TaskViewProtocol {
         return $0
     }(UIImageView())
     
+    //MARK: - Анимация при выполнении заметки "эффект фейерверка"
+    private lazy var confettiView: SwiftConfettiView = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.emissionAngle = 4 * .pi / 2
+        $0.burstCount = 150
+        $0.hapticFeedback = true
+        $0.density = 1.5
+        $0.intensity = 2
+        $0.isUserInteractionEnabled = false
+        $0.spread = 180
+        return $0
+    }(SwiftConfettiView())
+    
     lazy var countOfCompletedTasks: UILabel = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.font = .systemFont(ofSize: 30, weight: .bold)
@@ -200,6 +213,7 @@ final class TasksView: UIViewController, TaskViewProtocol {
     private func setupElements() {
         view.backgroundColor = .colorBackgroundView
         view.addSubview(scrollView)
+        view.addSubview(confettiView)
         scrollView.addSubview(contentView)
         contentView.addSubViews(taskCollectionView,tableNotes,upComingAffairsStack,categoriesStack,progressCardView)
         progressCardView.addSubViews(progressLabelToday,countOfCompletedTasks,progressCompletedNotes,phrasesLabel,iconContainerCheckmarkImage)
@@ -333,6 +347,11 @@ final class TasksView: UIViewController, TaskViewProtocol {
             categoriesStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             categoriesStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             
+            confettiView.topAnchor.constraint(equalTo: view.topAnchor,constant: 350),
+            confettiView.leadingAnchor.constraint(equalTo: view.leadingAnchor,constant: 150),
+            confettiView.trailingAnchor.constraint(equalTo: view.trailingAnchor,constant: -150),
+            confettiView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
             taskCollectionView.topAnchor.constraint(equalTo: categoriesStack.bottomAnchor, constant: 16),
             taskCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             taskCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
@@ -406,8 +425,11 @@ extension TasksView: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: CustomCellNoteMainView.reuseId, for: indexPath) as! CustomCellNoteMainView
         let note = mainTaskPresenter.notes[indexPath.row]
         cell.setupElementsCell(note: note)
-        cell.onToggle = {[weak self] id in
-            self?.mainTaskPresenter.updateToggleNote(with: id)
+        cell.onToggle = {[weak self] id, isCompletedNote in
+            self?.mainTaskPresenter.updateToggleNote(with: id,isCompleted: isCompletedNote)
+            if isCompletedNote == true {
+                self?.confettiView.startConfetti()
+            }
         }
         return cell
     }

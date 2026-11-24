@@ -4,12 +4,13 @@
 //
 //  Created by Дима Люфт on 21.10.2024.
 //
-
+import SwiftConfettiView
 import UIKit
 
 class CustomCellNote: UITableViewCell, SetupNewCell {
     static var reuseId: String = "CustomCellNote"
-    var onToggle: ((String) -> Void)?
+    var onToggle: ((String,Bool) -> Void)?
+    private var isCompleted: Bool = false
     private var noteId: String?
     var onDelete: ((String) -> Void)?
     
@@ -132,7 +133,7 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
             detailsNote.topAnchor.constraint(equalTo: nameNote.bottomAnchor, constant: 4),
             detailsNote.leadingAnchor.constraint(equalTo: nameNote.leadingAnchor),
             detailsNote.trailingAnchor.constraint(equalTo: nameNote.trailingAnchor),
-
+            
             dueDateStackView.topAnchor.constraint(equalTo: priorityStackView.topAnchor),
             dueDateStackView.leadingAnchor.constraint(equalTo: nameNote.leadingAnchor),
             dueDateStackView.bottomAnchor.constraint(equalTo: priorityStackView.bottomAnchor),
@@ -146,6 +147,7 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
     
     func configure(note: Note) {
         let priority = NotePriority.from(note.priority)
+        isCompleted = note.execution
         noteId = note.id
         detailsNote.text = note.details
         priorityIconImage.tintColor = priority.color
@@ -174,8 +176,9 @@ class CustomCellNote: UITableViewCell, SetupNewCell {
     
     @objc
      func checkboxTapped() {
+         let completedNote = !isCompleted
          guard let id = noteId else { return }
-         onToggle?(id)
+         onToggle?(id,completedNote)
        }
     
     @objc

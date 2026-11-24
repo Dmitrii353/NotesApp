@@ -16,7 +16,7 @@ protocol MainTaskPresenterProtocol: AnyObject  {
     func countOfCompletedTasks() -> String
     func countProgressAllNotes() -> Float
     var notes: [Note] { get }
-    func updateToggleNote(with id: String)
+    func updateToggleNote(with id: String,isCompleted: Bool)
 }
 
 class MainTaskPresenter: MainTaskPresenterProtocol {
@@ -50,7 +50,7 @@ class MainTaskPresenter: MainTaskPresenterProtocol {
         view?.reloadData()
     }
     
-    func updateToggleNote(with id: String) {
+    func updateToggleNote(with id: String,isCompleted: Bool) {
         guard let note = notes.first(where: {$0.id == id}) else { return }
         note.execution.toggle()
         coreManager.saveContext()

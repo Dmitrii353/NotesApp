@@ -20,7 +20,7 @@ protocol ListNotePresenterProtocol: AnyObject {
     var completedNote: [Note] { get set }
     var countOfCompletedNotes: Int { get }
     var countActiveNotes: Int { get }
-    func toggleNote(with id: String)
+    func toggleNote(with id: String, completed: Bool)
     func sortingNotesByPriority()
 }
 
@@ -126,7 +126,7 @@ class ListNotePresenter: ListNotePresenterProtocol {
         }
     }
     
-    func toggleNote(with id: String) {
+    func toggleNote(with id: String, completed: Bool) {
         guard let notes = tasks?.notes?.allObjects as? [Note],
               let note = notes.first(where: { $0.id == id }) else { return }
         note.execution.toggle()
